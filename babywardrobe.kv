@@ -1,12 +1,12 @@
 <LoginScreen>:
     BoxLayout:
         orientation: 'vertical'
-        padding: [20, 20, 20, 20]
-        spacing: 10
+        padding: [200, 20, 200, 20]
+        spacing: 20
 
         Label:
             text: 'Inicio de Sesión'
-            font_size: 32
+            font_size: 40
 
         TextInput:
             id: username
@@ -23,6 +23,7 @@
             text: 'Iniciar Sesión'
             on_press: root.manager.login(username.text, password.text)
 
+
         Button:
             text: 'Registrarse'
             on_press: root.manager.current = 'register'
@@ -30,7 +31,7 @@
 <RegisterScreen>:
     BoxLayout:
         orientation: 'vertical'
-        padding: [20, 20, 20, 20]
+        padding: [200, 20, 200, 20]
         spacing: 10
 
         Label:
