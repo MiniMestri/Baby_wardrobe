@@ -1,0 +1,138 @@
+<LoginScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: [200, 20, 200, 20]
+        spacing: 20
+
+        Label:
+            text: 'Inicio de Sesión'
+            font_size: 40
+
+        TextInput:
+            id: username
+            hint_text: 'Nombre de usuario'
+            multiline: False
+
+        TextInput:
+            id: password
+            hint_text: 'Contraseña'
+            password: True
+            multiline: False
+
+        Button:
+            text: 'Iniciar Sesión'
+            on_press: root.manager.login(username.text, password.text)
+
+        Button:
+            text: 'Registrarse'
+            on_press: root.manager.current = 'register'
+
+<RegisterScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: [200, 20, 200, 20]
+        spacing: 10
+
+        Label:
+            text: 'Registro'
+            font_size: 32
+
+        TextInput:
+            id: new_username
+            hint_text: 'Nombre de usuario'
+            multiline: False
+
+        TextInput:
+            id: new_password
+            hint_text: 'Contraseña'
+            password: True
+            multiline: False
+
+        Button:
+            text: 'Registrar'
+            on_press: root.manager.register(new_username.text, new_password.text)
+
+        Button:
+            text: 'Volver al Inicio de Sesión'
+            on_press: root.manager.current = 'login'
+
+<ImageButton@ButtonBehavior+Image>:
+
+<HomeScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        size: dp(48), dp(48)
+        Label:
+            text: 'Notificaciones'
+        GridLayout:
+            cols: 4
+            rows: 2
+
+            Button:
+                text: 'Categoria 1'
+            Button:
+                text: 'Categoria 2'
+            Button:
+                text: 'Categoria 3'
+            Button:
+                text: 'Categoria 4'
+            Button:
+                text: 'Categoria 5'
+            Button:
+                text: 'Categoria 6'
+            Button:
+                text: 'Categoria 7'
+            Button:
+                text: 'Categoria 8'
+
+        GridLayout:
+            cols: 4
+            rows: 1
+            size_hint_y: None
+            height: dp(50)
+            padding: [10, 10, 10, 10]
+            spacing: [10, 10]
+
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1  # Blanco
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            ImageButton:
+                source: app.get_image_path('casa.png')
+                on_press: root.manager.current = 'home'
+            ImageButton:
+                source: app.get_image_path('armario.png')
+                on_press: root.manager.current = 'wardrobe'
+            ImageButton:
+                source: app.get_image_path('regla.png')
+                on_press: root.manager.current = 'mesure'
+            ImageButton:
+                source: app.get_image_path('usuario.png')
+                on_press: root.manager.current = 'account'
+
+<WardrobeScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Pantalla de Gestión de Vestuario'
+        Button:
+            text: 'Volver a Inicio'
+            on_press: root.manager.current = 'home'
+<MesureScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Pantalla de Gestión de Vestuario'
+        Button:
+            text: 'Volver a Inicio'
+            on_press: root.manager.current = 'home'
+<AccountScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Pantalla de Gestión de Vestuario'
+        Button:
+            text: 'Volver a Inicio'
+            on_press: root.manager.current = 'home'
