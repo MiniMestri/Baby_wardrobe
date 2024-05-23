@@ -61,29 +61,78 @@
 <HomeScreen>:
     BoxLayout:
         orientation: 'vertical'
-        size: dp(48), dp(48)
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1  # Blanco
+            Rectangle:
+                pos: self.pos
+                size: self.size
         Label:
+            font_size: '48sp'
             text: 'Notificaciones'
+            color:0,0,0,1
+
         GridLayout:
             cols: 4
-            rows: 2
+            rows: 4
+            spacing: [5, 5]
+            padding: [10, 10, 10, 10]
+            canvas.before:
+                Color:
+                    rgba: 160/255, 205/255, 240/255, 1  # Blanco
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
 
-            Button:
-                text: 'Categoria 1'
-            Button:
-                text: 'Categoria 2'
-            Button:
-                text: 'Categoria 3'
-            Button:
-                text: 'Categoria 4'
-            Button:
-                text: 'Categoria 5'
-            Button:
-                text: 'Categoria 6'
-            Button:
-                text: 'Categoria 7'
-            Button:
-                text: 'Categoria 8'
+            ImageButton:
+                background_color: (200/255, 230/255, 250/255, 1)  # Rojo
+                source: app.get_image_path('boton_body.png')
+            ImageButton:
+                background_color: (200/255, 230/255, 250/255, 1)
+                source: app.get_image_path('boton_buzos.png')
+            ImageButton:
+                background_color: (200/255, 230/255, 250/255, 1)
+                source: app.get_image_path('boton_cubrepanales.png')
+            ImageButton:
+                background_color: (200/255, 230/255, 250/255, 1)
+                source: app.get_image_path('boton_faldon.png')
+
+            Label:
+                text:'[b]BODY[/b]'
+                markup: True
+            Label:
+                text:'[b]BUZOS[/b]'
+                markup: True
+            Label:
+                text:'[b]CUBRE[/b]'
+                markup: True
+            Label:
+                text:'[b]FALDONES[/b]'
+                markup: True
+            ImageButton:
+                background_color: (200/255, 230/255, 250/255, 1)
+                source: app.get_image_path('boton_jesusitos.png')
+            ImageButton:
+                background_color: (200/255, 230/255, 250/255, 1)
+                source: app.get_image_path('boton_pelele.png')
+            ImageButton:
+                background_color: (200/255, 230/255, 250/255, 1)
+                source: app.get_image_path('boton_petos.png')
+            ImageButton:
+                background_color: (200/255, 230/255, 250/255, 1)
+                source: app.get_image_path('boton_ranitas.png')
+            Label:
+                text:'[b]JESUSITOS[/b]'
+                markup: True
+            Label:
+                text:'[b]PELELES[/b]'
+                markup: True
+            Label:
+                text:'[b]PETOS[/b]'
+                markup: True
+            Label:
+                text:'[b]RANITAS[/b]'
+                markup: True
 
         GridLayout:
             cols: 4
