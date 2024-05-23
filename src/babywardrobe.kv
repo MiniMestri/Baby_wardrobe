@@ -117,22 +117,95 @@
         orientation: 'vertical'
         Label:
             text: 'Pantalla de Gestión de Vestuario'
-        Button:
-            text: 'Volver a Inicio'
-            on_press: root.manager.current = 'home'
+        GridLayout:
+            cols: 4
+            rows: 1
+            size_hint_y: None
+            height: dp(50)
+            padding: [10, 10, 10, 10]
+            spacing: [10, 10]
+
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1  # Blanco
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            ImageButton:
+                source: app.get_image_path('casa.png')
+                on_press: root.manager.current = 'home'
+            ImageButton:
+                source: app.get_image_path('armario.png')
+                on_press: root.manager.current = 'wardrobe'
+            ImageButton:
+                source: app.get_image_path('regla.png')
+                on_press: root.manager.current = 'mesure'
+            ImageButton:
+                source: app.get_image_path('usuario.png')
+                on_press: root.manager.current = 'account'
+
+        
+
+        
 <MesureScreen>:
     BoxLayout:
         orientation: 'vertical'
         Label:
             text: 'Pantalla de Gestión de Vestuario'
-        Button:
-            text: 'Volver a Inicio'
-            on_press: root.manager.current = 'home'
+        GridLayout:
+            cols: 4
+            rows: 1
+            size_hint_y: None
+            height: dp(50)
+            padding: [10, 10, 10, 10]
+            spacing: [10, 10]
+
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1  # Blanco
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            ImageButton:
+                source: app.get_image_path('casa.png')
+                on_press: root.manager.current = 'home'
+            ImageButton:
+                source: app.get_image_path('armario.png')
+                on_press: root.manager.current = 'wardrobe'
+            ImageButton:
+                source: app.get_image_path('regla.png')
+                on_press: root.manager.current = 'mesure'
+            ImageButton:
+                source: app.get_image_path('usuario.png')
+                on_press: root.manager.current = 'account'
 <AccountScreen>:
     BoxLayout:
         orientation: 'vertical'
         Label:
             text: 'Pantalla de Gestión de Vestuario'
-        Button:
-            text: 'Volver a Inicio'
-            on_press: root.manager.current = 'home'
+        GridLayout:
+            cols: 4
+            rows: 1
+            size_hint_y: None
+            height: dp(50)
+            padding: [10, 10, 10, 10]
+            spacing: [10, 10]
+
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1  # Blanco
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            ImageButton:
+                source: app.get_image_path('casa.png')
+                on_press: root.manager.current = 'home'
+            ImageButton:
+                source: app.get_image_path('armario.png')
+                on_press: root.manager.current = 'wardrobe'
+            ImageButton:
+                source: app.get_image_path('regla.png')
+                on_press: root.manager.current = 'mesure'
+            ImageButton:
+                source: app.get_image_path('usuario.png')
+                on_press: root.manager.current = 'account'
