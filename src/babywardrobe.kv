@@ -1,3 +1,4 @@
+
 <LoginScreen>:
     BoxLayout:
         orientation: 'vertical'
@@ -85,7 +86,7 @@
                     size: self.size
 
             ImageButton:
-                background_color: (200/255, 230/255, 250/255, 1)  # Rojo
+                background_color: (200/255, 230/255, 250/255, 1)  
                 source: app.get_image_path('boton_body.png')
             ImageButton:
                 background_color: (200/255, 230/255, 250/255, 1)
@@ -107,7 +108,7 @@
                 text:'[b]CUBRE[/b]'
                 markup: True
             Label:
-                text:'[b]FALDONES[/b]'
+                text:'[b]VESTIDOS[/b]'
                 markup: True
             ImageButton:
                 background_color: (200/255, 230/255, 250/255, 1)
@@ -193,14 +194,92 @@
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
 
-        
-
-        
 <MesureScreen>:
     BoxLayout:
         orientation: 'vertical'
-        Label:
-            text: 'Pantalla de Gestión de Vestuario'
+        canvas.before:
+            Color:
+                rgba:  0.784, 0.902, 0.980, 1  # Fondo
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: [20, 20, 20, 20]
+            spacing: 10
+            size_hint_y: None
+            height: self.minimum_height
+
+            Label:
+                text: 'Pantalla de Gestión de Medidas'
+                font_size: '24sp'
+                size_hint_y: None
+                height: '15dp'
+
+            Spinner:
+                id: spinner_clothing
+                text: 'Seleccionar prenda'
+                values: ['Body', 'Buzos', 'Cubrepañales', 'Vestidos', 'Jesusitos', 'Peleles', 'Petos', 'Ranitas']
+                on_text: root.on_spinner_select(self.text)
+                size_hint_y: None
+                height: '50dp'
+
+            BoxLayout:
+                id: measurement_inputs
+                orientation: 'vertical'
+                spacing: 10
+                size_hint_y: None
+                height: self.minimum_height
+
+                TextInput:
+                    id: height
+                    hint_text: 'Altura (cm)'
+                    multiline: False
+                    size_hint_y: None
+                    height: '40dp'
+                    disabled: True
+
+                TextInput:
+                    id: chest_circumference
+                    hint_text: 'Circunferencia del pecho (cm)'
+                    multiline: False
+                    size_hint_y: None
+                    height: '40dp'
+                    disabled: True
+
+                TextInput:
+                    id: waist_circumference
+                    hint_text: 'Circunferencia de la cintura (cm)'
+                    multiline: False
+                    size_hint_y: None
+                    height: '40dp'
+                    disabled: True
+
+                TextInput:
+                    id: torso_length
+                    hint_text: 'Largo del torso (cm)'
+                    multiline: False
+                    size_hint_y: None
+                    height: '40dp'
+                    disabled: True
+
+                TextInput:
+                    id: leg_length
+                    hint_text: 'Largo de la pierna (cm)'
+                    multiline: False
+                    size_hint_y: None
+                    height: '40dp'
+                    disabled: True
+
+            Button:
+                text: 'Guardar Medidas'
+                size_hint_y: None
+                height: '50dp'
+                on_press: root.save_measurements(spinner_clothing.text, height.text, chest_circumference.text, waist_circumference.text, torso_length.text, leg_length.text)
+
+        Widget:  
+
         GridLayout:
             cols: 4
             rows: 1
@@ -227,11 +306,54 @@
             ImageButton:
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
+
+
+
+
+
+<Button@Button>:
+    font_size: '24sp'
+    markup: True
+    color: 0, 0, 0, 1  # Color del texto
+    background_normal: ''  # Eliminar la imagen de fondo predeterminada
+    background_color: 1, 1, 1, 1  # Color de fondo por defecto (blanco)
+
 <AccountScreen>:
     BoxLayout:
         orientation: 'vertical'
-        Label:
-            text: 'Pantalla de Gestión de Vestuario'
+        spacing: 20
+        canvas.before:
+            Color:
+                rgba:  0.784, 0.902, 0.980, 1  # Blanco
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        
+        BoxLayout:
+            orientation: 'vertical'
+            padding: [20, 20, 20, 0]
+            spacing: 20
+
+            Button:
+                text: '[b]Mi cuenta[/b]'
+                background_color: (255/255, 255/255, 255/255, 1)
+
+            Button:
+                text: '[b]Mi bebe[/b]'
+                background_color: (255/255, 255/255, 255/255, 1)
+                on_press: root.manager.current = 'baby_measurements'
+
+            Button:
+                text: '[b]Cambiar contraseña[/b]'
+                background_color: (255/255, 255/255, 255/255, 1)
+                on_press: root.manager.current = 'change_password'
+
+            Button:
+                text: '[b]Cerrar sesion[/b]'
+                color: 1, 1, 1, 1
+                background_color: (255/255, 0/255, 0/255, 1)
+                on_press: app.get_running_app().stop()  # Llamar al método stop() para cerrar la app
+
         GridLayout:
             cols: 4
             rows: 1
@@ -258,3 +380,109 @@
             ImageButton:
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
+
+<ChangePasswordScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: [20, 20, 20, 20]
+        spacing:20
+
+
+        canvas.before:
+            Color:
+                rgba:  0.784, 0.902, 0.980, 1  # Blanco
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: 'Cambiar Contraseña'
+            font_size: '32sp'
+            color: 0, 0, 0, 1
+
+        TextInput:
+            id: username
+            hint_text: 'Nombre de usuario'
+            multiline: False
+
+        TextInput:
+            id: old_password
+            hint_text: 'Contraseña antigua'
+            password: True
+            multiline: False
+
+        TextInput:
+            id: new_password
+            hint_text: 'Nueva contraseña'
+            password: True
+            multiline: False
+
+        Button:
+            text: 'Cambiar Contraseña'
+            on_press: root.change_password(username.text, old_password.text, new_password.text)
+
+        Button:
+            text: 'Volver'
+            on_press: root.manager.current = 'account'
+
+<BabyMeasurementsScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: [20, 20, 20, 20]
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba:  0.784, 0.902, 0.980, 1  # Blanco
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: 'Medidas del Bebé'
+            font_size: '32sp'
+            color: 0, 0, 0, 1
+
+        Spinner:
+            id: spinner_name
+            text: 'Seleccionar o Nuevo'
+            values: []
+            on_text: root.on_spinner_select(self.text)
+
+        TextInput:
+            id: new_name
+            hint_text: 'Nuevo nombre'
+            multiline: False
+            disabled: True
+
+        TextInput:
+            id: height
+            hint_text: 'Altura del bebé (cm)'
+            multiline: False
+
+        TextInput:
+            id: chest_circumference
+            hint_text: 'Circunferencia del pecho (cm)'
+            multiline: False
+
+        TextInput:
+            id: waist_circumference
+            hint_text: 'Circunferencia de la cintura (cm)'
+            multiline: False
+
+        TextInput:
+            id: torso_length
+            hint_text: 'Largo del torso (cm)'
+            multiline: False
+
+        TextInput:
+            id: leg_length
+            hint_text: 'Largo de la pierna (cm)'
+            multiline: False
+
+        Button:
+            text: 'Guardar Medidas'
+            on_press: root.save_measurements(spinner_name.text, new_name.text, height.text, chest_circumference.text, waist_circumference.text, torso_length.text, leg_length.text)
+
+        Button:
+            text: 'Volver'
+            on_press: root.manager.current = 'account'
