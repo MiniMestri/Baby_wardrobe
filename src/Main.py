@@ -29,7 +29,6 @@ class HomeScreen(Screen):
     pass
 class MesureScreen(Screen):
     def on_spinner_select(self, text):
-        # Deshabilitar todos los campos de entrada al inicio
         self.ids.height.disabled = True
         self.ids.chest_circumference.disabled = True
         self.ids.waist_circumference.disabled = True
@@ -71,8 +70,7 @@ class MesureScreen(Screen):
             self.ids.torso_length.disabled = False
 
     def save_measurements(self, clothing_type, height, chest_circumference, waist_circumference, torso_length, leg_length):
-        username = self.manager.get_screen('login').ids.username.text
-        save_measurements_clothing(username, clothing_type, height, chest_circumference, waist_circumference, torso_length, leg_length)
+        save_measurements_clothing(clothing_type, height, chest_circumference, waist_circumference, torso_length, leg_length)
         popup = Popup(title='Medidas Guardadas',
                       content=Label(text='Las medidas han sido guardadas correctamente'),
                       size_hint=(None, None), size=(400, 400))

@@ -57,7 +57,7 @@ def get_existing_names():
 def save_measurements_clothing(username, height, chest_circumference, waist_circumference, torso_length, leg_length):
     connection = create_connection()
     cursor = connection.cursor()
-    cursor.execute('''INSERT INTO medidas_bebe_prenda (nombre, altura_prenda, circunferencia_pecho_prenda, circunferencia_cintura_prenda, largo_torso_prenda, largo_pierna_prenda)
+    cursor.execute('''INSERT INTO medidas_prenda (nombre_prenda, altura_prenda, circunferencia_pecho_prenda, circunferencia_cintura_prenda, largo_torso_prenda, largo_pierna_prenda)
                           VALUES (?, ?, ?, ?, ?, ?)''',
                        (username, height, chest_circumference, waist_circumference, torso_length, leg_length))
     connection.commit()
