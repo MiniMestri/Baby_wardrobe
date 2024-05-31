@@ -39,12 +39,19 @@
 <RegisterScreen>:
     BoxLayout:
         orientation: 'vertical'
-        padding: [200, 20, 200, 20]
-        spacing: 10
-
+        padding: [20, 20, 20, 20]
+        spacing: 20
+        canvas.before:
+            Color:
+                rgba:  0.784, 0.902, 0.980, 1 
+            Rectangle:
+                pos: self.pos
+                size: self.size
         Label:
-            text: 'Registro'
-            font_size: 32
+            text: '[b]Registro[/b]'
+            markup: True
+            color: 0, 0, 0, 1
+            font_size: 40
 
         TextInput:
             id: new_username
@@ -264,6 +271,13 @@
                 size_hint_y: None
                 height: '50dp'
 
+            Spinner:
+                id: wardrobe_spinner
+                text: 'Seleccione un armario'
+                size_hint_y: None
+                height: '50dp'
+
+
             BoxLayout:
                 id: measurement_inputs
                 orientation: 'vertical'
@@ -376,6 +390,7 @@
             Button:
                 text: '[b]Mi cuenta[/b]'
                 background_color: (255/255, 255/255, 255/255, 1)
+                on_press: root.display_account_info(root.manager.get_screen('login').ids.username.text)
 
             Button:
                 text: '[b]Mi bebe[/b]'
@@ -419,7 +434,6 @@
             ImageButton:
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
-
 <ChangePasswordScreen>:
     BoxLayout:
         orientation: 'vertical'

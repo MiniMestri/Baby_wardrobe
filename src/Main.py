@@ -10,9 +10,9 @@ from kivy.core.window import Window
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
+from kivy.uix.widget import Widget
 
-from database import add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes
+from database import add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe
 import sqlite3
 
 
@@ -35,34 +35,56 @@ class WardrobeScreen(Screen):
         self.ids.wardrobe_grid.clear_widgets()
         wardrobes = get_wardrobes(username)
         for wardrobe in wardrobes:
+            wardrobe_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
             btn = Button(text=wardrobe, size_hint_y=None, height=40)
-            btn.bind(on_press=self.select_wardrobe)
-            self.ids.wardrobe_grid.add_widget(btn)
+            spacer = Widget(size_hint_x=None, width=10)
+            delete_btn = Button(text='Eliminar', size_hint_y=None, height=40)
+            delete_btn.bind(on_press=lambda x, w=wardrobe: self.delete_wardrobe(username, w))
+            wardrobe_box.add_widget(btn)
+            wardrobe_box.add_widget(spacer) 
+            wardrobe_box.add_widget(delete_btn)
+            self.ids.wardrobe_grid.add_widget(wardrobe_box)
         
         add_wardrobe_btn = Button(text='Añadir Nuevo Armario', size_hint_y=None, height=40)
         add_wardrobe_btn.bind(on_press=self.show_add_wardrobe_popup)
         self.ids.wardrobe_grid.add_widget(add_wardrobe_btn)
 
-    def select_wardrobe(self, instance):
-        print(f"Armario seleccionado: {instance.text}")
-        # Aquí puedes agregar la lógica para manejar la selección de un armario
-
     def show_add_wardrobe_popup(self, instance):
         content = BoxLayout(orientation='vertical', padding=10)
         text_input = TextInput(hint_text='Nombre del nuevo armario', multiline=False)
         content.add_widget(text_input)
-        content.add_widget(Button(text='Guardar', size_hint_y=None, height=40, on_press=lambda x: self.add_wardrobe(text_input.text)))
+        save_button = Button(text='Guardar', size_hint_y=None, height=40, on_press=lambda x: self.add_wardrobe(text_input.text))
+        content.add_widget(save_button)
         popup = Popup(title='Añadir Nuevo Armario', content=content, size_hint=(None, None), size=(300, 200))
         popup.open()
+        self.popup = popup  # Guardar la referencia al popup para cerrarlo más tarde
 
     def add_wardrobe(self, wardrobe_name):
+        if not wardrobe_name.strip():
+            error_popup = Popup(title='Error', content=Label(text='El nombre del armario no puede estar vacío'), size_hint=(None, None), size=(300, 200))
+            error_popup.open()
+            return
+
         username = self.manager.get_screen('login').ids.username.text
         add_wardrobe(username, wardrobe_name)
+        self.display_wardrobes(username)
+        self.popup.dismiss()  # Cerrar el popup después de añadir el armario
+
+    def delete_wardrobe(self, username, wardrobe_name):
+        delete_wardrobe(username, wardrobe_name)
         self.display_wardrobes(username)
 
 class HomeScreen(Screen):
     pass
 class MesureScreen(Screen):
+    def on_pre_enter(self, *args):
+        self.update_wardrobe_spinner()
+
+    def update_wardrobe_spinner(self):
+        username = self.manager.get_screen('login').ids.username.text
+        wardrobes = get_wardrobes(username)
+        self.ids.wardrobe_spinner.values = wardrobes
+
     def on_spinner_select(self, text):
         self.ids.height.disabled = True
         self.ids.chest_circumference.disabled = True
@@ -105,14 +127,54 @@ class MesureScreen(Screen):
             self.ids.torso_length.disabled = False
 
     def save_measurements(self, clothing_type, height, chest_circumference, waist_circumference, torso_length, leg_length):
-        save_measurements_clothing(clothing_type, height, chest_circumference, waist_circumference, torso_length, leg_length)
-        popup = Popup(title='Medidas Guardadas',
-                      content=Label(text='Las medidas han sido guardadas correctamente'),
-                      size_hint=(None, None), size=(400, 400))
-        popup.open()
+        try:
+            username = self.manager.get_screen('login').ids.username.text
+            wardrobe = self.ids.wardrobe_spinner.text
+            if not wardrobe or wardrobe == 'Seleccione un armario':
+                raise ValueError("Por favor, seleccione un armario")
+
+            if not clothing_type or clothing_type == 'Seleccionar prenda':
+                raise ValueError("Por favor, seleccione un tipo de prenda")
+
+            save_measurements_clothing(username, clothing_type, wardrobe, height, chest_circumference, waist_circumference, torso_length, leg_length)
+            
+            popup = Popup(title='Medidas Guardadas',
+                          content=Label(text='Las medidas han sido guardadas correctamente'),
+                          size_hint=(None, None), size=(400, 400))
+            popup.open()
+        except Exception as e:
+            popup = Popup(title='Error',
+                          content=Label(text=f'Ocurrió un error: {str(e)}'),
+                          size_hint=(None, None), size=(400, 400))
+            popup.open()
 
 class AccountScreen(Screen):
-    pass
+    def display_account_info(self, username):
+        wardrobe_count = get_wardrobe_count(username)
+        clothing_counts = get_clothing_count_per_wardrobe(username)
+        latest_measurements = get_latest_baby_measurements(username)
+
+        info = f"Nombre de usuario: {username}\n\n"
+        info += f"Número de armarios: {wardrobe_count}\n\n"
+        info += "Número de prendas por armario:\n"
+        for wardrobe, count in clothing_counts:
+            info += f"{wardrobe}: {count}\n"
+        
+        info += "\nÚltimas medidas del bebé:\n"
+        if latest_measurements:
+            _, height, chest, waist, torso, leg = latest_measurements
+            info += f"Altura: {height}\n"
+            info += f"Circunferencia del pecho: {chest}\n"
+            info += f"Circunferencia de la cintura: {waist}\n"
+            info += f"Largo del torso: {torso}\n"
+            info += f"Largo de la pierna: {leg}\n"
+        else:
+            info += "No hay medidas disponibles.\n"
+
+        popup = Popup(title='Información de la cuenta',
+                      content=Label(text=info),
+                      size_hint=(None, None), size=(400, 400))
+        popup.open()
 
 
 
@@ -136,13 +198,27 @@ class BabyMeasurementsScreen(Screen):
         self.ids.spinner_name.text = "Seleccionar o Nuevo"
 
     def save_measurements(self, selected_name, new_name, height, chest_circumference, waist_circumference, torso_length, leg_length):
+        # Validar que todos los campos estén llenos
+        if not all([selected_name, height, chest_circumference, waist_circumference, torso_length, leg_length]) or selected_name == "Seleccionar o Nuevo":
+            popup = Popup(title='Error',
+                          content=Label(text='Todos los campos deben estar llenos'),
+                          size_hint=(None, None), size=(400, 400))
+            popup.open()
+            return
+
         username = new_name if selected_name == "Nuevo" else selected_name
-        save_measurements(username, height, chest_circumference, waist_circumference, torso_length, leg_length)
-        popup = Popup(title='Medidas Guardadas',
-                      content=Label(text='Las medidas del bebé han sido guardadas correctamente'),
-                      size_hint=(None, None), size=(400, 400))
-        popup.open()
-        self.manager.current = 'account'
+        try:
+            save_measurements(username, height, chest_circumference, waist_circumference, torso_length, leg_length)
+            popup = Popup(title='Medidas Guardadas',
+                          content=Label(text='Las medidas del bebé han sido guardadas correctamente'),
+                          size_hint=(None, None), size=(400, 400))
+            popup.open()
+            self.manager.current = 'mesure'
+        except Exception as e:
+            popup = Popup(title='Error',
+                          content=Label(text=f'Ocurrió un error: {str(e)}'),
+                          size_hint=(None, None), size=(400, 400))
+            popup.open()
 
     def on_spinner_select(self, text):
         if text == "Nuevo":
