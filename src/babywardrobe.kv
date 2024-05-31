@@ -2,11 +2,19 @@
 <LoginScreen>:
     BoxLayout:
         orientation: 'vertical'
-        padding: [200, 20, 200, 20]
+        padding: [20, 20, 20, 20]
         spacing: 20
+        canvas.before:
+            Color:
+                rgba:  0.784, 0.902, 0.980, 1 
+            Rectangle:
+                pos: self.pos
+                size: self.size
 
         Label:
-            text: 'Inicio de Sesión'
+            text: '[b]Inicio de Sesión[/b]'
+            markup: True
+            color: 0, 0, 0, 1
             font_size: 40
 
         TextInput:
@@ -165,8 +173,38 @@
 <WardrobeScreen>:
     BoxLayout:
         orientation: 'vertical'
-        Label:
-            text: 'Pantalla de Gestión de Vestuario'
+        canvas.before:
+            Color:
+                rgba:  0.784, 0.902, 0.980, 1  # Fondo
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: [20, 20, 20, 20]
+            spacing: 10
+
+            Label:
+                text: '[b]Gestión de Armarios[/b]'
+                markup: True
+                color: 0, 0, 0, 1  # Color del texto
+                font_size: '32sp'
+                size_hint_y: None
+                height: '50dp'
+
+            ScrollView:
+                GridLayout:
+                    id: wardrobe_grid
+                    cols: 1
+                    spacing: 10
+                    size_hint_y: None
+                    height: self.minimum_height
+
+        Widget:  # Este Widget actúa como un separador para evitar que el GridLayout herede el padding
+            size_hint_y: None
+            height: 0
+
         GridLayout:
             cols: 4
             rows: 1
@@ -193,7 +231,6 @@
             ImageButton:
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
-
 <MesureScreen>:
     BoxLayout:
         orientation: 'vertical'
@@ -212,8 +249,10 @@
             height: self.minimum_height
 
             Label:
-                text: 'Pantalla de Gestión de Medidas'
-                font_size: '24sp'
+                text: '[b]Gestión de Medidas[/b]'
+                markup: True
+                color: 0, 0, 0, 1
+                font_size: '32sp'
                 size_hint_y: None
                 height: '15dp'
 

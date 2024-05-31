@@ -63,3 +63,18 @@ def save_measurements_clothing(username, height, chest_circumference, waist_circ
     connection.commit()
     connection.close()
 
+def add_wardrobe(username, wardrobe_name):
+    connection = create_connection()
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO armarios (username, nombre_armario) VALUES (?, ?)", (username, wardrobe_name))
+    connection.commit()
+    connection.close()
+
+def get_wardrobes(username):
+    connection = create_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT nombre_armario FROM armarios WHERE username = ?", (username,))
+    wardrobes = [row[0] for row in cursor.fetchall()]
+    connection.close()
+    return wardrobes
+
