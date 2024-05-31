@@ -16,13 +16,14 @@ def create_tables():
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS medidas_bebe (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre_usuario TEXT NOT NULL,           
         nombre TEXT NOT NULL,
         altura REAL,
         circunferencia_pecho REAL,
         circunferencia_cintura REAL,
         largo_torso REAL,
         largo_pierna REAL,
-        FOREIGN KEY(nombre) REFERENCES login(username)
+        FOREIGN KEY(nombre_usuario) REFERENCES login(username)
     )''')
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS medidas_prenda (
@@ -76,18 +77,18 @@ def change_password(username, old_password, new_password):
     return False
 
 
-def save_measurements(username, height, chest_circumference, waist_circumference, torso_length, leg_length):
+def save_measurements(username,name, height, chest_circumference, waist_circumference, torso_length, leg_length):
     connection = create_connection()
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM medidas_bebe WHERE nombre = ?", (username,))
+    cursor.execute("SELECT * FROM medidas_bebe WHERE nombre = ?", (name,))
     if cursor.fetchone():
         cursor.execute('''UPDATE medidas_bebe SET altura = ?, circunferencia_pecho = ?, circunferencia_cintura = ?, largo_torso = ?, largo_pierna = ?
                           WHERE nombre = ?''',
-                       (height, chest_circumference, waist_circumference, torso_length, leg_length, username))
+                       (height, chest_circumference, waist_circumference, torso_length, leg_length, name))
     else:
-        cursor.execute('''INSERT INTO medidas_bebe (nombre, altura, circunferencia_pecho, circunferencia_cintura, largo_torso, largo_pierna)
-                          VALUES (?, ?, ?, ?, ?, ?)''',
-                       (username, height, chest_circumference, waist_circumference, torso_length, leg_length))
+        cursor.execute('''INSERT INTO medidas_bebe (nombre_usuario,nombre, altura, circunferencia_pecho, circunferencia_cintura, largo_torso, largo_pierna)
+                          VALUES (?,?, ?, ?, ?, ?, ?)''',
+                       (username,name, height, chest_circumference, waist_circumference, torso_length, leg_length))
     connection.commit()
     connection.close()
 
@@ -159,7 +160,7 @@ def get_latest_baby_measurements(username):
     cursor.execute('''
     SELECT nombre, altura, circunferencia_pecho, circunferencia_cintura, largo_torso, largo_pierna
     FROM medidas_bebe
-    WHERE nombre = ?
+    WHERE nombre_usuario = ?
     ORDER BY id DESC
     LIMIT 1
     ''', (username,))

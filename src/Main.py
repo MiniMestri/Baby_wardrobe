@@ -163,11 +163,11 @@ class AccountScreen(Screen):
         info += "\nÚltimas medidas del bebé:\n"
         if latest_measurements:
             _, height, chest, waist, torso, leg = latest_measurements
-            info += f"Altura: {height}\n"
-            info += f"Circunferencia del pecho: {chest}\n"
-            info += f"Circunferencia de la cintura: {waist}\n"
-            info += f"Largo del torso: {torso}\n"
-            info += f"Largo de la pierna: {leg}\n"
+            info += f"Altura: {height} cm\n"
+            info += f"Circunferencia del pecho: {chest} cm\n"
+            info += f"Circunferencia de la cintura: {waist} cm\n"
+            info += f"Largo del torso: {torso} cm\n"
+            info += f"Largo de la pierna: {leg} cm\n"
         else:
             info += "No hay medidas disponibles.\n"
 
@@ -206,9 +206,11 @@ class BabyMeasurementsScreen(Screen):
             popup.open()
             return
 
-        username = new_name if selected_name == "Nuevo" else selected_name
+        username = self.manager.get_screen('login').ids.username.text  # Obtener el nombre de usuario del campo de inicio de sesión
+        baby_name = new_name if selected_name == "Nuevo" else selected_name
+        
         try:
-            save_measurements(username, height, chest_circumference, waist_circumference, torso_length, leg_length)
+            save_measurements(username, baby_name, height, chest_circumference, waist_circumference, torso_length, leg_length)
             popup = Popup(title='Medidas Guardadas',
                           content=Label(text='Las medidas del bebé han sido guardadas correctamente'),
                           size_hint=(None, None), size=(400, 400))
