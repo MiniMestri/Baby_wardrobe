@@ -326,48 +326,107 @@
             font_size: '48sp'
             color: 0, 0, 0, 1
 
-        TextInput:
-            id: edit_type
-            hint_text: 'Tipo de prenda'
-            multiline: False
-            disabled: True
-            on_text: root.update_fields(self.text)
+        ScrollView:
+            BoxLayout:
+                orientation: 'vertical'
+                padding: [20, 20, 20, 20]
+                spacing: 10
+                size_hint_y: None
+                height: self.minimum_height
 
-        TextInput:
-            id: edit_height
-            hint_text: 'Altura (cm)'
-            multiline: False
+                TextInput:
+                    id: edit_type
+                    hint_text: 'Tipo de prenda'
+                    multiline: False
+                    disabled: True
+                    size_hint_y: None
+                    height: '40dp'
+                    on_text: root.update_fields(self.text)
 
-        TextInput:
-            id: edit_chest_circumference
-            hint_text: 'Circunferencia del pecho (cm)'
-            multiline: False
+                TextInput:
+                    id: edit_custom_name
+                    hint_text: 'Nombre Personalizado'
+                    multiline: False
+                    size_hint_y: None
+                    height: '40dp'
 
-        TextInput:
-            id: edit_waist_circumference
-            hint_text: 'Circunferencia de la cintura (cm)'
-            multiline: False
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: 300
+                    spacing: 10
+                    Image:
+                        id: edit_image
+                        size_hint: (None, None)
+                        size: (335, 250)
+                        allow_stretch: True
+                    Button:
+                        text: 'Subir Imagen'
+                        size_hint_y: None
+                        height: '40dp'
+                        on_press: root.upload_image()
 
-        TextInput:
-            id: edit_torso_length
-            hint_text: 'Largo del torso (cm)'
-            multiline: False
+                        BoxLayout:
+                            id: filechooser_layout
+                            orientation: 'vertical'
+                            size_hint_y: None
+                            height: '0dp'
+                            FileChooserListView:
+                                on_selection: root.on_image_selected(self.selection)
 
-        TextInput:
-            id: edit_leg_length
-            hint_text: 'Largo de la pierna (cm)'
-            multiline: False
+                BoxLayout:
+                    id: edit_measurement_inputs
+                    orientation: 'vertical'
+                    spacing: 10
+                    size_hint_y: None
+                    height: self.minimum_height
 
-        Button:
-            text: 'Guardar'
-            on_press: root.save_clothing_details()
+                    TextInput:
+                        id: edit_height
+                        hint_text: 'Altura (cm)'
+                        multiline: False
+                        size_hint_y: None
+                        height: '40dp'
 
-        Button:
-            text: 'Cancelar'
-            on_press: root.manager.current = 'wardrobe_details'
+                    TextInput:
+                        id: edit_chest_circumference
+                        hint_text: 'Circunferencia del pecho (cm)'
+                        multiline: False
+                        size_hint_y: None
+                        height: '40dp'
 
+                    TextInput:
+                        id: edit_waist_circumference
+                        hint_text: 'Circunferencia de la cintura (cm)'
+                        multiline: False
+                        size_hint_y: None
+                        height: '40dp'
 
+                    TextInput:
+                        id: edit_torso_length
+                        hint_text: 'Largo del torso (cm)'
+                        multiline: False
+                        size_hint_y: None
+                        height: '40dp'
 
+                    TextInput:
+                        id: edit_leg_length
+                        hint_text: 'Largo de la pierna (cm)'
+                        multiline: False
+                        size_hint_y: None
+                        height: '40dp'
+
+                Button:
+                    text: 'Guardar'
+                    size_hint_y: None
+                    height: '50dp'
+                    on_press: root.save_clothing_details()
+
+                Button:
+                    text: 'Cancelar'
+                    size_hint_y: None
+                    height: '50dp'
+                    on_press: root.manager.current = 'category_details'
 
 <WardrobeDetailsScreen>:
     BoxLayout:
@@ -407,95 +466,124 @@
         orientation: 'vertical'
         canvas.before:
             Color:
-                rgba:  0.784, 0.902, 0.980, 1  # Fondo
+                rgba: 0.784, 0.902, 0.980, 1  # Fondo
             Rectangle:
                 pos: self.pos
                 size: self.size
 
-        BoxLayout:
-            orientation: 'vertical'
-            padding: [20, 20, 20, 20]
-            spacing: 10
+        Label:
+            text: '[b]Gestión de Medidas[/b]'
+            markup: True
+            color: 0, 0, 0, 1
+            font_size: '32sp'
             size_hint_y: None
-            height: self.minimum_height
+            height: '50dp'
 
-            Label:
-                text: '[b]Gestión de Medidas[/b]'
-                markup: True
-                color: 0, 0, 0, 1
-                font_size: '32sp'
-                size_hint_y: None
-                height: '15dp'
-
-            Spinner:
-                id: spinner_clothing
-                text: 'Seleccionar prenda'
-                values: ['Body', 'Buzos', 'Cubrepañales', 'Vestidos', 'Jesusitos', 'Peleles', 'Petos', 'Ranitas']
-                on_text: root.on_spinner_select(self.text)
-                size_hint_y: None
-                height: '50dp'
-
-            Spinner:
-                id: wardrobe_spinner
-                text: 'Seleccione un armario'
-                size_hint_y: None
-                height: '50dp'
-
-
+        ScrollView:
             BoxLayout:
-                id: measurement_inputs
                 orientation: 'vertical'
-                spacing: 10
                 size_hint_y: None
                 height: self.minimum_height
+                padding: [20, 20, 20, 20]
+                spacing: 10
+
+                Spinner:
+                    id: spinner_clothing
+                    text: 'Seleccionar prenda'
+                    values: ['Body', 'Buzos', 'Cubrepañales', 'Vestidos', 'Jesusitos', 'Peleles', 'Petos', 'Ranitas']
+                    on_text: root.on_spinner_select(self.text)
+                    size_hint_y: None
+                    height: '50dp'
+
+                Spinner:
+                    id: wardrobe_spinner
+                    text: 'Seleccione un armario'
+                    size_hint_y: None
+                    height: '50dp'
 
                 TextInput:
-                    id: height
-                    hint_text: 'Altura (cm)'
+                    id: custom_name
+                    hint_text: 'Nombre Personalizado'
                     multiline: False
                     size_hint_y: None
                     height: '40dp'
-                    disabled: True
 
-                TextInput:
-                    id: chest_circumference
-                    hint_text: 'Circunferencia del pecho (cm)'
-                    multiline: False
+                BoxLayout:
+                    orientation: 'vertical'
                     size_hint_y: None
-                    height: '40dp'
-                    disabled: True
+                    height: 300
+                    spacing: 10
+                
+                    Image:
+                        id: image
+                        size_hint: (None, None)
+                        size: (335, 250)
+                        allow_stretch: True
+                    Button:
+                        text: 'Subir Imagen'
+                        size_hint_y: None
+                        height: '40dp'
+                        on_press: root.upload_image()
+                        BoxLayout:
+                            id: filechooser_layout
+                            orientation: 'vertical'
+                            size_hint_y: None
+                            height: '0dp'
+                            FileChooserListView:
+                                on_selection: root.on_image_selected(self.selection)
 
-                TextInput:
-                    id: waist_circumference
-                    hint_text: 'Circunferencia de la cintura (cm)'
-                    multiline: False
+                BoxLayout:
+                    id: measurement_inputs
+                    orientation: 'vertical'
+                    spacing: 10
                     size_hint_y: None
-                    height: '40dp'
-                    disabled: True
+                    height: self.minimum_height
 
-                TextInput:
-                    id: torso_length
-                    hint_text: 'Largo del torso (cm)'
-                    multiline: False
+                    TextInput:
+                        id: height
+                        hint_text: 'Altura (cm)'
+                        multiline: False
+                        size_hint_y: None
+                        height: '40dp'
+                        disabled: True
+
+                    TextInput:
+                        id: chest_circumference
+                        hint_text: 'Circunferencia del pecho (cm)'
+                        multiline: False
+                        size_hint_y: None
+                        height: '40dp'
+                        disabled: True
+
+                    TextInput:
+                        id: waist_circumference
+                        hint_text: 'Circunferencia de la cintura (cm)'
+                        multiline: False
+                        size_hint_y: None
+                        height: '40dp'
+                        disabled: True
+
+                    TextInput:
+                        id: torso_length
+                        hint_text: 'Largo del torso (cm)'
+                        multiline: False
+                        size_hint_y: None
+                        height: '40dp'
+                        disabled: True
+
+                    TextInput:
+                        id: leg_length
+                        hint_text: 'Largo de la pierna (cm)'
+                        multiline: False
+                        size_hint_y: None
+                        height: '40dp'
+                        disabled: True
+
+                Button:
+                    text: 'Guardar Medidas'
                     size_hint_y: None
-                    height: '40dp'
-                    disabled: True
-
-                TextInput:
-                    id: leg_length
-                    hint_text: 'Largo de la pierna (cm)'
-                    multiline: False
-                    size_hint_y: None
-                    height: '40dp'
-                    disabled: True
-
-            Button:
-                text: 'Guardar Medidas'
-                size_hint_y: None
-                height: '50dp'
-                on_press: root.save_measurements(spinner_clothing.text, height.text, chest_circumference.text, waist_circumference.text, torso_length.text, leg_length.text)
-
-        Widget:  
+                    height: '50dp'
+                    on_press: root.save_measurements(spinner_clothing.text, custom_name.text, image.source, height.text, chest_circumference.text, waist_circumference.text, torso_length.text, leg_length.text)
 
         GridLayout:
             cols: 4
@@ -523,9 +611,6 @@
             ImageButton:
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
-
-
-
 
 
 <Button@Button>:
@@ -703,3 +788,9 @@
         Button:
             text: 'Volver'
             on_press: root.manager.current = 'account'
+
+
+
+
+
+

@@ -12,6 +12,11 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
 from kivy.properties import StringProperty
+from kivy.uix.popup import Popup
+from kivy.uix.boxlayout import BoxLayout
+from kivy.lang import Builder
+from kivy.uix.filechooser import FileChooserListView
+
 
 
 from database import update_clothing_details,get_clothes_by_category,get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
@@ -27,6 +32,7 @@ class LoginScreen(Screen):
 
 class RegisterScreen(Screen):
     pass
+
 
 class WardrobeScreen(Screen):
     def on_pre_enter(self, *args):
@@ -209,6 +215,8 @@ class EditClothingScreen(Screen):
             clothing_info = get_clothing_info(self.clothing_id)
             if clothing_info:
                 self.ids.edit_type.text = clothing_info['type']
+                self.ids.edit_custom_name.text = clothing_info['custom_name'] or ''
+                self.ids.edit_image.source = clothing_info['image'] or ''
                 self.ids.edit_height.text = str(clothing_info['height'])
                 self.ids.edit_chest_circumference.text = str(clothing_info['chest_circumference'])
                 self.ids.edit_waist_circumference.text = str(clothing_info['waist_circumference'])
@@ -260,15 +268,32 @@ class EditClothingScreen(Screen):
     def save_clothing_details(self):
         update_clothing_details(self.clothing_id,
                                 self.ids.edit_type.text,
+                                self.ids.edit_custom_name.text,
+                                self.ids.edit_image.source,
                                 self.ids.edit_height.text,
                                 self.ids.edit_chest_circumference.text,
                                 self.ids.edit_waist_circumference.text,
                                 self.ids.edit_torso_length.text,
                                 self.ids.edit_leg_length.text)
-        self.manager.current = self.manager.previous_screen  # Redirigir a la pantalla anterior
+        if self.manager.previous_screen == 'wardrobe_details':
+            self.manager.current = 'wardrobe_details'
+        else:
+            self.manager.current = 'category_details'
 
+    def upload_image(self):
+        content = BoxLayout(orientation='vertical')
+        filechooser = FileChooserListView(on_selection=self.on_image_selected)
+        content.add_widget(filechooser)
+        close_button = Button(text='Cerrar', size_hint_y=None, height=40)
+        close_button.bind(on_press=lambda x: self.popup.dismiss())
+        content.add_widget(close_button)
+        self.popup = Popup(title='Seleccionar imagen', content=content, size_hint=(0.9, 0.9))
+        self.popup.open()
 
-
+    def on_image_selected(self, selection):
+        if selection:
+            self.ids.edit_image.source = selection[0]
+        self.popup.dismiss()
 
 
 
@@ -282,21 +307,12 @@ class MesureScreen(Screen):
         self.ids.wardrobe_spinner.values = wardrobes
 
     def on_spinner_select(self, text):
-        # Limpiar los valores de los TextInput
-        self.ids.height.text = ''
-        self.ids.chest_circumference.text = ''
-        self.ids.waist_circumference.text = ''
-        self.ids.torso_length.text = ''
-        self.ids.leg_length.text = ''
-
-        # Deshabilitar todos los campos inicialmente
         self.ids.height.disabled = True
         self.ids.chest_circumference.disabled = True
         self.ids.waist_circumference.disabled = True
         self.ids.torso_length.disabled = True
         self.ids.leg_length.disabled = True
 
-        # Habilitar campos según la selección
         if text == 'Body':
             self.ids.height.disabled = False
             self.ids.chest_circumference.disabled = False
@@ -331,7 +347,7 @@ class MesureScreen(Screen):
             self.ids.chest_circumference.disabled = False
             self.ids.torso_length.disabled = False
 
-    def save_measurements(self, clothing_type, height, chest_circumference, waist_circumference, torso_length, leg_length):
+    def save_measurements(self, clothing_type, custom_name, image, height, chest_circumference, waist_circumference, torso_length, leg_length):
         try:
             username = self.manager.get_screen('login').ids.username.text
             wardrobe = self.ids.wardrobe_spinner.text
@@ -341,7 +357,7 @@ class MesureScreen(Screen):
             if not clothing_type or clothing_type == 'Seleccionar prenda':
                 raise ValueError("Por favor, seleccione un tipo de prenda")
 
-            save_measurements_clothing(username, clothing_type, wardrobe, height, chest_circumference, waist_circumference, torso_length, leg_length)
+            save_measurements_clothing(username, clothing_type, wardrobe, custom_name, image, height, chest_circumference, waist_circumference, torso_length, leg_length)
             
             popup = Popup(title='Medidas Guardadas',
                           content=Label(text='Las medidas han sido guardadas correctamente'),
@@ -352,6 +368,21 @@ class MesureScreen(Screen):
                           content=Label(text=f'Ocurrió un error: {str(e)}'),
                           size_hint=(None, None), size=(400, 400))
             popup.open()
+
+    def upload_image(self):
+        content = BoxLayout(orientation='vertical')
+        filechooser = FileChooserListView(on_selection=self.on_image_selected)
+        content.add_widget(filechooser)
+        close_button = Button(text='Cerrar', size_hint_y=None, height=40)
+        close_button.bind(on_press=lambda x: self.popup.dismiss())
+        content.add_widget(close_button)
+        self.popup = Popup(title='Seleccionar imagen', content=content, size_hint=(0.9, 0.9))
+        self.popup.open()
+
+    def on_image_selected(self, selection):
+        if selection:
+            self.ids.image.source = selection[0]
+        self.popup.dismiss()
 
 class AccountScreen(Screen):
     def display_account_info(self, username):

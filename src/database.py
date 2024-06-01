@@ -36,7 +36,7 @@ def create_tables():
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS medidas_bebe (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre_usuario TEXT NOT NULL,           
+        nombre_usuario TEXT NOT NULL,
         nombre TEXT NOT NULL,
         altura REAL,
         circunferencia_pecho REAL,
@@ -50,6 +50,8 @@ def create_tables():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nombre TEXT NOT NULL,
         prenda TEXT NOT NULL,
+        nombre_personalizado TEXT,
+        imagen TEXT,
         nombre_armario TEXT NOT NULL,
         altura_prenda REAL,
         circunferencia_pecho_prenda REAL,
@@ -68,6 +70,7 @@ def create_tables():
     )''')
     connection.commit()
     connection.close()
+
 
 def add_user(username, password):
     connection = create_connection()
@@ -120,18 +123,19 @@ def get_existing_names():
     connection.close()
     return names
 
-def save_measurements_clothing(username, clothing_type, wardrobe_name, height, chest_circumference, waist_circumference, torso_length, leg_length):
+def save_measurements_clothing(username, clothing_type, wardrobe_name, custom_name, image, height, chest_circumference, waist_circumference, torso_length, leg_length):
     try:
         connection = create_connection()
         cursor = connection.cursor()
-        cursor.execute('''INSERT INTO medidas_prenda (nombre, prenda, nombre_armario, altura_prenda, circunferencia_pecho_prenda, circunferencia_cintura_prenda, largo_torso_prenda, largo_pierna_prenda)
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-                       (username, clothing_type, wardrobe_name, height, chest_circumference, waist_circumference, torso_length, leg_length))
+        cursor.execute('''INSERT INTO medidas_prenda (nombre, prenda, nombre_armario, nombre_personalizado, imagen, altura_prenda, circunferencia_pecho_prenda, circunferencia_cintura_prenda, largo_torso_prenda, largo_pierna_prenda)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                       (username, clothing_type, wardrobe_name, custom_name, image, height, chest_circumference, waist_circumference, torso_length, leg_length))
         connection.commit()
     except sqlite3.Error as e:
         raise Exception(f"Error al guardar las medidas de la prenda: {e}")
     finally:
         connection.close()
+
 
 def add_wardrobe(username, wardrobe_name):
     connection = create_connection()
@@ -200,7 +204,7 @@ def get_clothing_info(clothing_id):
     connection = create_connection()
     cursor = connection.cursor()
     cursor.execute('''
-    SELECT prenda, altura_prenda, circunferencia_pecho_prenda, circunferencia_cintura_prenda, largo_torso_prenda, largo_pierna_prenda 
+    SELECT prenda, nombre_personalizado, imagen, altura_prenda, circunferencia_pecho_prenda, circunferencia_cintura_prenda, largo_torso_prenda, largo_pierna_prenda
     FROM medidas_prenda
     WHERE id = ?
     ''', (clothing_id,))
@@ -209,11 +213,13 @@ def get_clothing_info(clothing_id):
     if row:
         return {
             'type': row[0],
-            'height': row[1],
-            'chest_circumference': row[2],
-            'waist_circumference': row[3],
-            'torso_length': row[4],
-            'leg_length': row[5],
+            'custom_name': row[1],
+            'image': row[2],
+            'height': row[3],
+            'chest_circumference': row[4],
+            'waist_circumference': row[5],
+            'torso_length': row[6],
+            'leg_length': row[7]
         }
     return None
 
@@ -233,14 +239,14 @@ def get_clothes_by_category(username, category):
     connection.close()
     return clothes
 
-def update_clothing_details(clothing_id, type, height, chest_circumference, waist_circumference, torso_length, leg_length):
+def update_clothing_details(clothing_id, type, custom_name, image, height, chest_circumference, waist_circumference, torso_length, leg_length):
     connection = create_connection()
     cursor = connection.cursor()
     cursor.execute('''
     UPDATE medidas_prenda
-    SET prenda = ?, altura_prenda = ?, circunferencia_pecho_prenda = ?, circunferencia_cintura_prenda = ?, largo_torso_prenda = ?, largo_pierna_prenda = ?
+    SET prenda = ?, nombre_personalizado = ?, imagen = ?, altura_prenda = ?, circunferencia_pecho_prenda = ?, circunferencia_cintura_prenda = ?, largo_torso_prenda = ?, largo_pierna_prenda = ?
     WHERE id = ?
-    ''', (type, height, chest_circumference, waist_circumference, torso_length, leg_length, clothing_id))
+    ''', (type, custom_name, image, height, chest_circumference, waist_circumference, torso_length, leg_length, clothing_id))
     connection.commit()
     connection.close()
 
