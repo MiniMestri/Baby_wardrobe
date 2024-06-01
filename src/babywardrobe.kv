@@ -238,6 +238,39 @@
             ImageButton:
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
+
+
+<WardrobeDetailsScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        canvas.before:
+            Color:
+                rgba:  0.784, 0.902, 0.980, 1  # Fondo
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: '[b]Prendas del Armario[/b]'
+            markup: True
+            color: 0, 0, 0, 1
+            font_size: '32sp'
+            size_hint_y: None
+            height: '50dp'
+
+        ScrollView:
+            GridLayout:
+                id: clothing_grid
+                cols: 4
+                spacing: 10
+                size_hint_y: None
+                height: self.minimum_height
+
+        Button:
+            text: 'Volver'
+            size_hint_y: None
+            height: '50dp'
+            on_press: root.manager.current = 'wardrobe'
 <MesureScreen>:
     BoxLayout:
         orientation: 'vertical'

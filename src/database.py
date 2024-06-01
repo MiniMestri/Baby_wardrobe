@@ -1,7 +1,27 @@
 import sqlite3
+import sys
+import os
+
+
+if getattr(sys, 'frozen', False):
+    base_dir = os.path.join(sys._MEIPASS, 'bbdd')
+else:
+    base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bbdd')
+
+if not os.path.exists(base_dir):
+    os.makedirs(base_dir)
+
+ruta_bbdd = os.path.join(base_dir, 'login.sqlite3')
+
+
+print("eta es una bbdd"+ruta_bbdd)
 
 def create_connection():
-    return sqlite3.connect("C:/Users/fonsi/Desktop/ESTUDIO/IMF 2/TFG/Baby_wardrobe/bbdd/login.sqlite3")
+    try:
+        return sqlite3.connect(ruta_bbdd)
+    except sqlite3.Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return None
 
 
 def create_tables():
@@ -167,5 +187,12 @@ def get_latest_baby_measurements(username):
     measurements = cursor.fetchone()
     connection.close()
     return measurements
+def get_clothes_in_wardrobe(username, wardrobe_name):
+    connection = create_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT prenda FROM medidas_prenda WHERE nombre = ? AND nombre_armario = ?", (username, wardrobe_name))
+    clothes = [row[0] for row in cursor.fetchall()]
+    connection.close()
+    return clothes
 
 create_tables()

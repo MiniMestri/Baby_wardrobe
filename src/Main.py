@@ -11,8 +11,10 @@ from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
+import sys
 
-from database import add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe
+
+from database import add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
 import sqlite3
 
 
@@ -37,17 +39,22 @@ class WardrobeScreen(Screen):
         for wardrobe in wardrobes:
             wardrobe_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
             btn = Button(text=wardrobe, size_hint_y=None, height=40)
+            btn.bind(on_press=lambda x, w=wardrobe: self.show_wardrobe_details(username, w))
             spacer = Widget(size_hint_x=None, width=10)
             delete_btn = Button(text='Eliminar', size_hint_y=None, height=40)
             delete_btn.bind(on_press=lambda x, w=wardrobe: self.delete_wardrobe(username, w))
             wardrobe_box.add_widget(btn)
-            wardrobe_box.add_widget(spacer) 
+            wardrobe_box.add_widget(spacer)
             wardrobe_box.add_widget(delete_btn)
             self.ids.wardrobe_grid.add_widget(wardrobe_box)
         
         add_wardrobe_btn = Button(text='Añadir Nuevo Armario', size_hint_y=None, height=40)
         add_wardrobe_btn.bind(on_press=self.show_add_wardrobe_popup)
         self.ids.wardrobe_grid.add_widget(add_wardrobe_btn)
+
+    def show_wardrobe_details(self, username, wardrobe_name):
+        self.manager.current_wardrobe = wardrobe_name
+        self.manager.current = 'wardrobe_details'
 
     def show_add_wardrobe_popup(self, instance):
         content = BoxLayout(orientation='vertical', padding=10)
@@ -73,6 +80,18 @@ class WardrobeScreen(Screen):
     def delete_wardrobe(self, username, wardrobe_name):
         delete_wardrobe(username, wardrobe_name)
         self.display_wardrobes(username)
+
+class WardrobeDetailsScreen(Screen):
+    def on_pre_enter(self, *args):
+        self.display_clothes(self.manager.current_wardrobe)
+
+    def display_clothes(self, wardrobe_name):
+        self.ids.clothing_grid.clear_widgets()
+        username = self.manager.get_screen('login').ids.username.text
+        clothes = get_clothes_in_wardrobe(username, wardrobe_name)
+        for clothing in clothes:
+            btn = Button(text=clothing, size_hint_y=None, height=40)
+            self.ids.clothing_grid.add_widget(btn)
 
 class HomeScreen(Screen):
     pass
@@ -267,6 +286,7 @@ class BabyWardrobeApp(App):
         sm.add_widget(AccountScreen(name='account'))
         sm.add_widget(ChangePasswordScreen(name='change_password'))
         sm.add_widget(BabyMeasurementsScreen(name='baby_measurements'))
+        sm.add_widget(WardrobeDetailsScreen(name='wardrobe_details'))
         return sm
 
     def get_image_path(self, filename):
