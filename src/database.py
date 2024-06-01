@@ -190,9 +190,43 @@ def get_latest_baby_measurements(username):
 def get_clothes_in_wardrobe(username, wardrobe_name):
     connection = create_connection()
     cursor = connection.cursor()
-    cursor.execute("SELECT prenda FROM medidas_prenda WHERE nombre = ? AND nombre_armario = ?", (username, wardrobe_name))
-    clothes = [row[0] for row in cursor.fetchall()]
+    cursor.execute("SELECT id, prenda FROM medidas_prenda WHERE nombre = ? AND nombre_armario = ?", (username, wardrobe_name))
+    clothes = [(row[0], row[1]) for row in cursor.fetchall()]
     connection.close()
     return clothes
+
+
+def get_clothing_info(clothing_id):
+    connection = create_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+    SELECT prenda, altura_prenda, circunferencia_pecho_prenda, circunferencia_cintura_prenda, largo_torso_prenda, largo_pierna_prenda 
+    FROM medidas_prenda
+    WHERE id = ?
+    ''', (clothing_id,))
+    row = cursor.fetchone()
+    connection.close()
+    if row:
+        return {
+            'type': row[0],
+            'height': row[1],
+            'chest_circumference': row[2],
+            'waist_circumference': row[3],
+            'torso_length': row[4],
+            'leg_length': row[5],
+        }
+    return None
+
+
+def delete_clothing_from_wardrobe(clothing_id):
+    connection = create_connection()
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM medidas_prenda WHERE id = ?", (clothing_id,))
+    connection.commit()
+    connection.close()
+
+
+
+
 
 create_tables()

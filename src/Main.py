@@ -14,7 +14,7 @@ from kivy.uix.widget import Widget
 import sys
 
 
-from database import add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
+from database import get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
 import sqlite3
 
 
@@ -89,9 +89,52 @@ class WardrobeDetailsScreen(Screen):
         self.ids.clothing_grid.clear_widgets()
         username = self.manager.get_screen('login').ids.username.text
         clothes = get_clothes_in_wardrobe(username, wardrobe_name)
-        for clothing in clothes:
+        for clothing_id, clothing in clothes:
             btn = Button(text=clothing, size_hint_y=None, height=40)
+            btn.bind(on_press=lambda x, cid=clothing_id: self.show_clothing_info_popup(cid))
             self.ids.clothing_grid.add_widget(btn)
+
+    def show_clothing_info_popup(self, clothing_id):
+        # Obtener la información de la prenda desde la base de datos
+        clothing_info = get_clothing_info(clothing_id)
+        
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        
+        # Añadir información de la prenda
+        content.add_widget(Label(text=f"Tipo de prenda: {clothing_info['type']}", size_hint_y=None, height=40))
+        content.add_widget(Label(text=f"Altura: {clothing_info['height']} cm", size_hint_y=None, height=40))
+        content.add_widget(Label(text=f"Circunferencia del pecho: {clothing_info['chest_circumference']} cm", size_hint_y=None, height=40))
+        content.add_widget(Label(text=f"Circunferencia de la cintura: {clothing_info['waist_circumference']} cm", size_hint_y=None, height=40))
+        content.add_widget(Label(text=f"Largo del torso: {clothing_info['torso_length']} cm", size_hint_y=None, height=40))
+        content.add_widget(Label(text=f"Largo de la pierna: {clothing_info['leg_length']} cm", size_hint_y=None, height=40))
+        
+        # Botones de editar y eliminar
+        btn_edit = Button(text='Editar', size_hint_y=None, height=50)
+        btn_delete = Button(text='Eliminar', size_hint_y=None, height=50)
+
+        # Añadir funcionalidad a los botones
+        btn_edit.bind(on_press=lambda x: self.edit_clothing(clothing_id))
+        btn_delete.bind(on_press=lambda x: self.delete_clothing(clothing_id))
+
+        content.add_widget(btn_edit)
+        content.add_widget(btn_delete)
+
+        popup = Popup(title='Información de la prenda', content=content, size_hint=(None, None), size=(400, 600))
+        popup.open()
+        self.popup = popup
+
+    def edit_clothing(self, clothing_id):
+        # Aquí puedes añadir la funcionalidad para editar la prenda
+        pass
+
+    def delete_clothing(self, clothing_id):
+        # Eliminar la prenda de la base de datos
+        delete_clothing_from_wardrobe(clothing_id)
+        # Actualizar la lista de prendas
+        self.display_clothes(self.manager.current_wardrobe)
+        # Cerrar el popup
+        self.popup.dismiss()
+
 
 class HomeScreen(Screen):
     pass
@@ -105,12 +148,21 @@ class MesureScreen(Screen):
         self.ids.wardrobe_spinner.values = wardrobes
 
     def on_spinner_select(self, text):
+        # Limpiar los valores de los TextInput
+        self.ids.height.text = ''
+        self.ids.chest_circumference.text = ''
+        self.ids.waist_circumference.text = ''
+        self.ids.torso_length.text = ''
+        self.ids.leg_length.text = ''
+
+        # Deshabilitar todos los campos inicialmente
         self.ids.height.disabled = True
         self.ids.chest_circumference.disabled = True
         self.ids.waist_circumference.disabled = True
         self.ids.torso_length.disabled = True
         self.ids.leg_length.disabled = True
 
+        # Habilitar campos según la selección
         if text == 'Body':
             self.ids.height.disabled = False
             self.ids.chest_circumference.disabled = False

@@ -95,60 +95,68 @@
             padding: [10, 10, 10, 10]
             canvas.before:
                 Color:
-                    rgba: 160/255, 205/255, 240/255, 1  # Blanco
+                    rgba:  0.784, 0.902, 0.980, 1  # Blanco
                 Rectangle:
                     pos: self.pos
                     size: self.size
 
             ImageButton:
-                background_color: (200/255, 230/255, 250/255, 1)  
+                background_color: 0.784, 0.902, 0.980, 1 
                 source: app.get_image_path('boton_body.png')
             ImageButton:
-                background_color: (200/255, 230/255, 250/255, 1)
+                background_color: 0.784, 0.902, 0.980, 1
                 source: app.get_image_path('boton_buzos.png')
             ImageButton:
-                background_color: (200/255, 230/255, 250/255, 1)
+                background_color: 0.784, 0.902, 0.980, 1
                 source: app.get_image_path('boton_cubrepanales.png')
             ImageButton:
-                background_color: (200/255, 230/255, 250/255, 1)
+                background_color: 0.784, 0.902, 0.980, 1
                 source: app.get_image_path('boton_faldon.png')
 
             Label:
                 text:'[b]BODY[/b]'
                 markup: True
+                color:0,0,0,1
             Label:
                 text:'[b]BUZOS[/b]'
                 markup: True
+                color:0,0,0,1
             Label:
                 text:'[b]CUBRE[/b]'
                 markup: True
+                color:0,0,0,1
             Label:
                 text:'[b]VESTIDOS[/b]'
                 markup: True
+                color:0,0,0,1
             ImageButton:
-                background_color: (200/255, 230/255, 250/255, 1)
+                background_color: 0.784, 0.902, 0.980, 1
                 source: app.get_image_path('boton_jesusitos.png')
             ImageButton:
-                background_color: (200/255, 230/255, 250/255, 1)
+                background_color: 0.784, 0.902, 0.980, 1
                 source: app.get_image_path('boton_pelele.png')
             ImageButton:
-                background_color: (200/255, 230/255, 250/255, 1)
+                background_color: 0.784, 0.902, 0.980, 1
                 source: app.get_image_path('boton_petos.png')
             ImageButton:
-                background_color: (200/255, 230/255, 250/255, 1)
+                background_color: 0.784, 0.902, 0.980, 1
                 source: app.get_image_path('boton_ranitas.png')
             Label:
                 text:'[b]JESUSITOS[/b]'
                 markup: True
+                color:0,0,0,1
             Label:
                 text:'[b]PELELES[/b]'
                 markup: True
+                color:0,0,0,1
             Label:
                 text:'[b]PETOS[/b]'
                 markup: True
+                color:0,0,0,1
             Label:
                 text:'[b]RANITAS[/b]'
                 markup: True
+                color:0,0,0,1
 
         GridLayout:
             cols: 4
@@ -249,22 +257,24 @@
             Rectangle:
                 pos: self.pos
                 size: self.size
-
-        Label:
-            text: '[b]Prendas del Armario[/b]'
-            markup: True
-            color: 0, 0, 0, 1
-            font_size: '32sp'
-            size_hint_y: None
-            height: '50dp'
-
-        ScrollView:
-            GridLayout:
-                id: clothing_grid
-                cols: 4
-                spacing: 10
+        BoxLayout:
+            orientation: 'vertical'
+            padding: [20, 20, 20, 20]
+            Label:
+                text: '[b]Prendas del Armario[/b]'
+                markup: True
+                color: 0, 0, 0, 1
+                font_size: '32sp'
                 size_hint_y: None
-                height: self.minimum_height
+                height: '50dp'
+
+            ScrollView:
+                GridLayout:
+                    id: clothing_grid
+                    cols: 4
+                    spacing: 10
+                    size_hint_y: None
+                    height: self.minimum_height
 
         Button:
             text: 'Volver'
