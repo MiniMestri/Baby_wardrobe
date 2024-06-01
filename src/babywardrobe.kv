@@ -86,7 +86,7 @@
         Label:
             font_size: '48sp'
             text: 'Notificaciones'
-            color:0,0,0,1
+            color: 0, 0, 0, 1
 
         GridLayout:
             cols: 4
@@ -95,68 +95,68 @@
             padding: [10, 10, 10, 10]
             canvas.before:
                 Color:
-                    rgba:  0.784, 0.902, 0.980, 1  # Blanco
+                    rgba: 160/255, 205/255, 240/255, 1  # Blanco
                 Rectangle:
                     pos: self.pos
                     size: self.size
 
             ImageButton:
-                background_color: 0.784, 0.902, 0.980, 1 
+                background_color: (200/255, 230/255, 250/255, 1)  
                 source: app.get_image_path('boton_body.png')
+                on_press: root.show_category('Body')
             ImageButton:
-                background_color: 0.784, 0.902, 0.980, 1
+                background_color: (200/255, 230/255, 250/255, 1)
                 source: app.get_image_path('boton_buzos.png')
+                on_press: root.show_category('Buzos')
             ImageButton:
-                background_color: 0.784, 0.902, 0.980, 1
+                background_color: (200/255, 230/255, 250/255, 1)
                 source: app.get_image_path('boton_cubrepanales.png')
+                on_press: root.show_category('Cubrepañales')
             ImageButton:
-                background_color: 0.784, 0.902, 0.980, 1
+                background_color: (200/255, 230/255, 250/255, 1)
                 source: app.get_image_path('boton_faldon.png')
+                on_press: root.show_category('Vestidos')
 
             Label:
-                text:'[b]BODY[/b]'
+                text: '[b]BODY[/b]'
                 markup: True
-                color:0,0,0,1
             Label:
-                text:'[b]BUZOS[/b]'
+                text: '[b]BUZOS[/b]'
                 markup: True
-                color:0,0,0,1
             Label:
-                text:'[b]CUBRE[/b]'
+                text: '[b]CUBRE[/b]'
                 markup: True
-                color:0,0,0,1
             Label:
-                text:'[b]VESTIDOS[/b]'
+                text: '[b]VESTIDOS[/b]'
                 markup: True
-                color:0,0,0,1
             ImageButton:
-                background_color: 0.784, 0.902, 0.980, 1
+                background_color: (200/255, 230/255, 250/255, 1)
                 source: app.get_image_path('boton_jesusitos.png')
+                on_press: root.show_category('Jesusitos')
             ImageButton:
-                background_color: 0.784, 0.902, 0.980, 1
+                background_color: (200/255, 230/255, 250/255, 1)
                 source: app.get_image_path('boton_pelele.png')
+                on_press: root.show_category('Peleles')
             ImageButton:
-                background_color: 0.784, 0.902, 0.980, 1
+                background_color: (200/255, 230/255, 250/255, 1)
                 source: app.get_image_path('boton_petos.png')
+                on_press: root.show_category('Petos')
             ImageButton:
-                background_color: 0.784, 0.902, 0.980, 1
+                background_color: (200/255, 230/255, 250/255, 1)
                 source: app.get_image_path('boton_ranitas.png')
+                on_press: root.show_category('Ranitas')
             Label:
-                text:'[b]JESUSITOS[/b]'
+                text: '[b]JESUSITOS[/b]'
                 markup: True
-                color:0,0,0,1
             Label:
-                text:'[b]PELELES[/b]'
+                text: '[b]PELELES[/b]'
                 markup: True
-                color:0,0,0,1
             Label:
-                text:'[b]PETOS[/b]'
+                text: '[b]PETOS[/b]'
                 markup: True
-                color:0,0,0,1
             Label:
-                text:'[b]RANITAS[/b]'
+                text: '[b]RANITAS[/b]'
                 markup: True
-                color:0,0,0,1
 
         GridLayout:
             cols: 4
@@ -184,6 +184,68 @@
             ImageButton:
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
+
+<CategoryDetailsScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        canvas.before:
+            Color:
+                rgba:  0.784, 0.902, 0.980, 1 
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: [20, 20, 20, 20]
+            spacing: 10
+
+            Label:
+                id: category_title
+                font_size: '48sp'
+                text: 'Categoría de ropa'
+                color: 0, 0, 0, 1
+
+            ScrollView:
+                GridLayout:
+                    id: category_grid
+                    cols: 4
+                    size_hint_y: None
+                    height: self.minimum_height
+                    row_default_height: '40dp'
+                    row_force_default: True
+                    spacing: [5, 5]
+                    padding: [10, 10, 10, 10]
+
+        GridLayout:
+            cols: 4
+            rows: 1
+            size_hint_y: None
+            height: dp(50)
+            padding: [10, 10, 10, 10]
+            spacing: [10, 10]
+
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1  # Blanco
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            ImageButton:
+                source: app.get_image_path('casa.png')
+                on_press: root.manager.current = 'home'
+            ImageButton:
+                source: app.get_image_path('armario.png')
+                on_press: root.manager.current = 'wardrobe'
+            ImageButton:
+                source: app.get_image_path('regla.png')
+                on_press: root.manager.current = 'mesure'
+            ImageButton:
+                source: app.get_image_path('usuario.png')
+                on_press: root.manager.current = 'account'
+
+
+
 
 <WardrobeScreen>:
     BoxLayout:
@@ -246,6 +308,65 @@
             ImageButton:
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
+
+<EditClothingScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: [20, 20, 20, 20]
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba:  0.784, 0.902, 0.980, 1  # Fondo
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: 'Editar Prenda'
+            font_size: '48sp'
+            color: 0, 0, 0, 1
+
+        TextInput:
+            id: edit_type
+            hint_text: 'Tipo de prenda'
+            multiline: False
+            disabled: True
+            on_text: root.update_fields(self.text)
+
+        TextInput:
+            id: edit_height
+            hint_text: 'Altura (cm)'
+            multiline: False
+
+        TextInput:
+            id: edit_chest_circumference
+            hint_text: 'Circunferencia del pecho (cm)'
+            multiline: False
+
+        TextInput:
+            id: edit_waist_circumference
+            hint_text: 'Circunferencia de la cintura (cm)'
+            multiline: False
+
+        TextInput:
+            id: edit_torso_length
+            hint_text: 'Largo del torso (cm)'
+            multiline: False
+
+        TextInput:
+            id: edit_leg_length
+            hint_text: 'Largo de la pierna (cm)'
+            multiline: False
+
+        Button:
+            text: 'Guardar'
+            on_press: root.save_clothing_details()
+
+        Button:
+            text: 'Cancelar'
+            on_press: root.manager.current = 'wardrobe_details'
+
+
 
 
 <WardrobeDetailsScreen>:

@@ -225,6 +225,26 @@ def delete_clothing_from_wardrobe(clothing_id):
     connection.commit()
     connection.close()
 
+def get_clothes_by_category(username, category):
+    connection = create_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT id, prenda FROM medidas_prenda WHERE nombre = ? AND prenda = ?", (username, category))
+    clothes = [(row[0], row[1]) for row in cursor.fetchall()]
+    connection.close()
+    return clothes
+
+def update_clothing_details(clothing_id, type, height, chest_circumference, waist_circumference, torso_length, leg_length):
+    connection = create_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+    UPDATE medidas_prenda
+    SET prenda = ?, altura_prenda = ?, circunferencia_pecho_prenda = ?, circunferencia_cintura_prenda = ?, largo_torso_prenda = ?, largo_pierna_prenda = ?
+    WHERE id = ?
+    ''', (type, height, chest_circumference, waist_circumference, torso_length, leg_length, clothing_id))
+    connection.commit()
+    connection.close()
+
+
 
 
 

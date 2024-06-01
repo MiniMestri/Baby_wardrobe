@@ -11,10 +11,10 @@ from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
-import sys
+from kivy.properties import StringProperty
 
 
-from database import get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
+from database import update_clothing_details,get_clothes_by_category,get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
 import sqlite3
 
 
@@ -95,6 +95,66 @@ class WardrobeDetailsScreen(Screen):
             self.ids.clothing_grid.add_widget(btn)
 
     def show_clothing_info_popup(self, clothing_id):
+        clothing_info = get_clothing_info(clothing_id)
+        
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        content.add_widget(Label(text=f"Tipo de prenda: {clothing_info['type']}", size_hint_y=None, height=40))
+        content.add_widget(Label(text=f"Altura: {clothing_info['height']} cm", size_hint_y=None, height=40))
+        content.add_widget(Label(text=f"Circunferencia del pecho: {clothing_info['chest_circumference']} cm", size_hint_y=None, height=40))
+        content.add_widget(Label(text=f"Circunferencia de la cintura: {clothing_info['waist_circumference']} cm", size_hint_y=None, height=40))
+        content.add_widget(Label(text=f"Largo del torso: {clothing_info['torso_length']} cm", size_hint_y=None, height=40))
+        content.add_widget(Label(text=f"Largo de la pierna: {clothing_info['leg_length']} cm", size_hint_y=None, height=40))
+        
+        btn_edit = Button(text='Editar', size_hint_y=None, height=50)
+        btn_delete = Button(text='Eliminar', size_hint_y=None, height=50)
+
+        btn_edit.bind(on_press=lambda x: self.edit_clothing(clothing_id))
+        btn_delete.bind(on_press=lambda x: self.delete_clothing(clothing_id))
+
+        content.add_widget(btn_edit)
+        content.add_widget(btn_delete)
+
+        popup = Popup(title='Información de la prenda', content=content, size_hint=(None, None), size=(400, 600))
+        popup.open()
+        self.popup = popup
+
+    def edit_clothing(self, clothing_id):
+        edit_screen = self.manager.get_screen('edit_clothing')
+        edit_screen.clothing_id = clothing_id
+        self.manager.previous_screen = 'wardrobe_details'  # Establecer pantalla anterior
+        self.popup.dismiss()  # Cerrar el popup antes de cambiar la pantalla
+        self.manager.current = 'edit_clothing'
+
+    def delete_clothing(self, clothing_id):
+        delete_clothing_from_wardrobe(clothing_id)
+        self.display_clothes(self.manager.current_wardrobe)
+        self.popup.dismiss()
+
+
+
+class HomeScreen(Screen):
+    def show_category(self, category):
+        self.manager.current_category = category
+        self.manager.current = 'category_details'
+
+class CategoryDetailsScreen(Screen):
+    def on_pre_enter(self, *args):
+        self.display_category_items(self.manager.current_category)
+        self.update_category_title(self.manager.current_category)
+
+    def display_category_items(self, category):
+        self.ids.category_grid.clear_widgets()
+        username = self.manager.get_screen('login').ids.username.text
+        clothes = get_clothes_by_category(username, category)
+        for clothing_id, clothing in clothes:
+            btn = Button(text=clothing, size_hint_y=None, height=40)
+            btn.bind(on_press=lambda x, cid=clothing_id: self.show_clothing_info_popup(cid))
+            self.ids.category_grid.add_widget(btn)
+
+    def update_category_title(self, category):
+        self.ids.category_title.text = f'{category}'
+
+    def show_clothing_info_popup(self, clothing_id):
         # Obtener la información de la prenda desde la base de datos
         clothing_info = get_clothing_info(clothing_id)
         
@@ -124,20 +184,94 @@ class WardrobeDetailsScreen(Screen):
         self.popup = popup
 
     def edit_clothing(self, clothing_id):
-        # Aquí puedes añadir la funcionalidad para editar la prenda
-        pass
+        edit_screen = self.manager.get_screen('edit_clothing')
+        edit_screen.clothing_id = clothing_id
+        self.manager.previous_screen = 'category_details'  # Establecer pantalla anterior
+        self.popup.dismiss()  # Cerrar el popup antes de cambiar la pantalla
+        self.manager.current = 'edit_clothing'
 
     def delete_clothing(self, clothing_id):
         # Eliminar la prenda de la base de datos
         delete_clothing_from_wardrobe(clothing_id)
         # Actualizar la lista de prendas
-        self.display_clothes(self.manager.current_wardrobe)
+        self.display_category_items(self.manager.current_category)
         # Cerrar el popup
         self.popup.dismiss()
 
+class EditClothingScreen(Screen):
+    clothing_id = None
 
-class HomeScreen(Screen):
-    pass
+    def on_pre_enter(self):
+        self.load_clothing_details()
+
+    def load_clothing_details(self):
+        if self.clothing_id is not None:
+            clothing_info = get_clothing_info(self.clothing_id)
+            if clothing_info:
+                self.ids.edit_type.text = clothing_info['type']
+                self.ids.edit_height.text = str(clothing_info['height'])
+                self.ids.edit_chest_circumference.text = str(clothing_info['chest_circumference'])
+                self.ids.edit_waist_circumference.text = str(clothing_info['waist_circumference'])
+                self.ids.edit_torso_length.text = str(clothing_info['torso_length'])
+                self.ids.edit_leg_length.text = str(clothing_info['leg_length'])
+                self.update_fields(clothing_info['type'])
+
+    def update_fields(self, clothing_type):
+        self.ids.edit_height.disabled = True
+        self.ids.edit_chest_circumference.disabled = True
+        self.ids.edit_waist_circumference.disabled = True
+        self.ids.edit_torso_length.disabled = True
+        self.ids.edit_leg_length.disabled = True
+
+        if clothing_type == 'Body':
+            self.ids.edit_height.disabled = False
+            self.ids.edit_chest_circumference.disabled = False
+            self.ids.edit_torso_length.disabled = False
+        elif clothing_type == 'Buzos':
+            self.ids.edit_height.disabled = False
+            self.ids.edit_chest_circumference.disabled = False
+        elif clothing_type == 'Cubrepañales':
+            self.ids.edit_waist_circumference.disabled = False
+            self.ids.edit_leg_length.disabled = False
+        elif clothing_type == 'Vestidos':
+            self.ids.edit_height.disabled = False
+            self.ids.edit_chest_circumference.disabled = False
+            self.ids.edit_torso_length.disabled = False
+        elif clothing_type == 'Jesusitos':
+            self.ids.edit_height.disabled = False
+            self.ids.edit_chest_circumference.disabled = False
+            self.ids.edit_torso_length.disabled = False
+            self.ids.edit_waist_circumference.disabled = False
+        elif clothing_type == 'Peleles':
+            self.ids.edit_height.disabled = False
+            self.ids.edit_chest_circumference.disabled = False
+            self.ids.edit_torso_length.disabled = False
+            self.ids.edit_leg_length.disabled = False
+        elif clothing_type == 'Petos':
+            self.ids.edit_height.disabled = False
+            self.ids.edit_chest_circumference.disabled = False
+            self.ids.edit_torso_length.disabled = False
+            self.ids.edit_leg_length.disabled = False
+        elif clothing_type == 'Ranitas':
+            self.ids.edit_height.disabled = False
+            self.ids.edit_chest_circumference.disabled = False
+            self.ids.edit_torso_length.disabled = False
+
+    def save_clothing_details(self):
+        update_clothing_details(self.clothing_id,
+                                self.ids.edit_type.text,
+                                self.ids.edit_height.text,
+                                self.ids.edit_chest_circumference.text,
+                                self.ids.edit_waist_circumference.text,
+                                self.ids.edit_torso_length.text,
+                                self.ids.edit_leg_length.text)
+        self.manager.current = self.manager.previous_screen  # Redirigir a la pantalla anterior
+
+
+
+
+
+
 class MesureScreen(Screen):
     def on_pre_enter(self, *args):
         self.update_wardrobe_spinner()
@@ -299,6 +433,9 @@ class BabyMeasurementsScreen(Screen):
         else:
             self.ids.new_name.disabled = True
 class WindowManager(ScreenManager):
+    current_category = StringProperty('')
+    current_wardrobe = StringProperty('')
+    previous_screen = StringProperty('')
     def login(self, username, password):
         if validate_user(username, password):
             self.current = 'home'
@@ -339,6 +476,8 @@ class BabyWardrobeApp(App):
         sm.add_widget(ChangePasswordScreen(name='change_password'))
         sm.add_widget(BabyMeasurementsScreen(name='baby_measurements'))
         sm.add_widget(WardrobeDetailsScreen(name='wardrobe_details'))
+        sm.add_widget(CategoryDetailsScreen(name='category_details'))
+        sm.add_widget(EditClothingScreen(name='edit_clothing'))
         return sm
 
     def get_image_path(self, filename):

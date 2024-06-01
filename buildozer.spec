@@ -43,10 +43,10 @@ icon.filename = %(source.dir)s/assets/iconos/armario.png
 logcat.filters = *:S python:D
 
 # (str) Android NDK version to use
-android.ndk = r26d
+android.ndk = 25b
 
 # Añadir la ruta del NDK
-android.ndk_path = /home/fonsi/Escritorio/android-ndk-r26d
+android.ndk_path = /home/fonsi/Escritorio/android-ndk-r25b
 
 # (list) whitelisted architectures (default is armeabi-v7a)
 android.archs = armeabi-v7a,arm64-v8a
