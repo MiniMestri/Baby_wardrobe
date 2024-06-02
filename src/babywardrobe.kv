@@ -212,7 +212,7 @@
                     cols: 4
                     size_hint_y: None
                     height: self.minimum_height
-                    row_default_height: '40dp'
+                    row_default_height: '100dp'
                     row_force_default: True
                     spacing: [5, 5]
                     padding: [10, 10, 10, 10]
@@ -243,6 +243,7 @@
             ImageButton:
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
+
 
 
 
@@ -459,7 +460,7 @@
                 GridLayout:
                     id: clothing_grid
                     cols: 4
-                    spacing: [10,10]
+                    spacing: [10, 10]
                     size_hint_y: None
                     height: self.minimum_height
 
@@ -468,6 +469,7 @@
             size_hint_y: None
             height: '50dp'
             on_press: root.manager.current = 'wardrobe'
+
 <MesureScreen>:
     BoxLayout:
         orientation: 'vertical'

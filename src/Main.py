@@ -42,6 +42,10 @@ class LoginScreen(Screen):
 class RegisterScreen(Screen):
     pass
 
+class ImageButton(ButtonBehavior, Image):
+    pass
+
+
 
 class WardrobeScreen(Screen):
     def on_pre_enter(self, *args):
@@ -105,15 +109,18 @@ class WardrobeDetailsScreen(Screen):
         username = self.manager.get_screen('login').ids.username.text
         clothes = get_clothes_in_wardrobe(username, wardrobe_name)
         for clothing_id, clothing in clothes:
-            btn = Button(text=clothing, size_hint_y=None, height=40)
-            btn.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
-            self.ids.clothing_grid.add_widget(btn)
+            clothing_info = get_clothing_info(clothing_id)
+            image_path = clothing_info['image'] if clothing_info and clothing_info['image'] else 'default_image_path'
+            img = ImageButton(source=image_path, size_hint_y=None, height=200)
+            img.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
+            self.ids.clothing_grid.add_widget(img)
 
     def edit_clothing(self, clothing_id):
         edit_screen = self.manager.get_screen('edit_clothing')
         edit_screen.clothing_id = clothing_id
         self.manager.previous_screen = 'wardrobe_details'
         self.manager.current = 'edit_clothing'
+
 
 
 
@@ -132,9 +139,14 @@ class CategoryDetailsScreen(Screen):
         username = self.manager.get_screen('login').ids.username.text
         clothes = get_clothes_by_category(username, category)
         for clothing_id, clothing in clothes:
-            btn = Button(text=clothing, size_hint_y=None, height=40)
-            btn.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
-            self.ids.category_grid.add_widget(btn)
+            clothing_info = get_clothing_info(clothing_id)
+            image_path = clothing_info['image'] if clothing_info else None
+            if image_path and os.path.exists(image_path):
+                img = ImageButton(source=image_path, size_hint_y=None, height=100, on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
+            else:
+                img = Button(text=clothing, size_hint_y=None, height=100)
+                img.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
+            self.ids.category_grid.add_widget(img)
 
     def update_category_title(self, category):
         self.ids.category_title.text = f'{category}'
@@ -144,6 +156,8 @@ class CategoryDetailsScreen(Screen):
         edit_screen.clothing_id = clothing_id
         self.manager.previous_screen = 'category_details'
         self.manager.current = 'edit_clothing'
+
+
 
 class EditClothingScreen(Screen):
     clothing_id = None
