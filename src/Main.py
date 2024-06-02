@@ -208,6 +208,7 @@ class EditClothingScreen(Screen):
     clothing_id = None
 
     def on_pre_enter(self):
+        self.clear_measurement_widgets()
         self.load_clothing_details()
 
     def load_clothing_details(self):
@@ -265,6 +266,16 @@ class EditClothingScreen(Screen):
             self.ids.edit_chest_circumference.disabled = False
             self.ids.edit_torso_length.disabled = False
 
+    def clear_measurement_widgets(self):
+        self.ids.edit_height.text = ''
+        self.ids.edit_chest_circumference.text = ''
+        self.ids.edit_waist_circumference.text = ''
+        self.ids.edit_torso_length.text = ''
+        self.ids.edit_leg_length.text = ''
+        self.ids.edit_image.source = ''
+        self.ids.edit_custom_name.text = ''
+        self.ids.edit_type.text = 'Seleccionar prenda'
+
     def save_clothing_details(self):
         update_clothing_details(self.clothing_id,
                                 self.ids.edit_type.text,
@@ -282,20 +293,25 @@ class EditClothingScreen(Screen):
 
     def upload_image(self):
         content = BoxLayout(orientation='vertical')
-        filechooser = FileChooserListView(on_selection=self.on_image_selected)
-        content.add_widget(filechooser)
+        self.filechooser = FileChooserListView()
+        content.add_widget(self.filechooser)
+        
+        select_button = Button(text='Seleccionar Imagen', size_hint_y=None, height=40)
+        select_button.bind(on_press=self.select_image)
+        content.add_widget(select_button)
+
         close_button = Button(text='Cerrar', size_hint_y=None, height=40)
         close_button.bind(on_press=lambda x: self.popup.dismiss())
         content.add_widget(close_button)
+
         self.popup = Popup(title='Seleccionar imagen', content=content, size_hint=(0.9, 0.9))
         self.popup.open()
 
-    def on_image_selected(self, selection):
+    def select_image(self, instance):
+        selection = self.filechooser.selection
         if selection:
             self.ids.edit_image.source = selection[0]
         self.popup.dismiss()
-
-
 
 class MesureScreen(Screen):
     def on_pre_enter(self, *args):
@@ -307,6 +323,9 @@ class MesureScreen(Screen):
         self.ids.wardrobe_spinner.values = wardrobes
 
     def on_spinner_select(self, text):
+        # Limpiar todos los widgets de entrada
+        self.clear_measurement_widgets()
+        
         self.ids.height.disabled = True
         self.ids.chest_circumference.disabled = True
         self.ids.waist_circumference.disabled = True
@@ -347,6 +366,15 @@ class MesureScreen(Screen):
             self.ids.chest_circumference.disabled = False
             self.ids.torso_length.disabled = False
 
+    def clear_measurement_widgets(self):
+        self.ids.height.text = ''
+        self.ids.chest_circumference.text = ''
+        self.ids.waist_circumference.text = ''
+        self.ids.torso_length.text = ''
+        self.ids.leg_length.text = ''
+        self.ids.image.source = ''
+        self.ids.custom_name.text = ''
+
     def save_measurements(self, clothing_type, custom_name, image, height, chest_circumference, waist_circumference, torso_length, leg_length):
         try:
             username = self.manager.get_screen('login').ids.username.text
@@ -371,19 +399,25 @@ class MesureScreen(Screen):
 
     def upload_image(self):
         content = BoxLayout(orientation='vertical')
-        filechooser = FileChooserListView(on_selection=self.on_image_selected)
-        content.add_widget(filechooser)
+        self.filechooser = FileChooserListView()
+        content.add_widget(self.filechooser)
+        
+        select_button = Button(text='Seleccionar Imagen', size_hint_y=None, height=40)
+        select_button.bind(on_press=self.select_image)
+        content.add_widget(select_button)
+
         close_button = Button(text='Cerrar', size_hint_y=None, height=40)
         close_button.bind(on_press=lambda x: self.popup.dismiss())
         content.add_widget(close_button)
+
         self.popup = Popup(title='Seleccionar imagen', content=content, size_hint=(0.9, 0.9))
         self.popup.open()
 
-    def on_image_selected(self, selection):
+    def select_image(self, instance):
+        selection = self.filechooser.selection
         if selection:
             self.ids.image.source = selection[0]
         self.popup.dismiss()
-
 class AccountScreen(Screen):
     def display_account_info(self, username):
         wardrobe_count = get_wardrobe_count(username)

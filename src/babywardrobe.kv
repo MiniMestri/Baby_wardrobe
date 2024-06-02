@@ -312,8 +312,6 @@
 <EditClothingScreen>:
     BoxLayout:
         orientation: 'vertical'
-        padding: [20, 20, 20, 20]
-        spacing: 10
         canvas.before:
             Color:
                 rgba:  0.784, 0.902, 0.980, 1  # Fondo
@@ -426,7 +424,7 @@
                     text: 'Cancelar'
                     size_hint_y: None
                     height: '50dp'
-                    on_press: root.manager.current = 'category_details'
+                    on_press: root.manager.current = 'wardrobe_details'
 
 <WardrobeDetailsScreen>:
     BoxLayout:

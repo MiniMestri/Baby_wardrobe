@@ -252,7 +252,4 @@ def update_clothing_details(clothing_id, type, custom_name, image, height, chest
 
 
 
-
-
-
 create_tables()
