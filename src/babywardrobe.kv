@@ -314,45 +314,48 @@
         orientation: 'vertical'
         canvas.before:
             Color:
-                rgba:  0.784, 0.902, 0.980, 1  # Fondo
+                rgba: 0.784, 0.902, 0.980, 1  # Fondo
             Rectangle:
                 pos: self.pos
                 size: self.size
 
         Label:
-            text: 'Editar Prenda'
-            font_size: '48sp'
+            text: '[b]Editar Prenda[/b]'
+            markup: True
             color: 0, 0, 0, 1
+            font_size: '32sp'
+            size_hint_y: None
+            height: '50dp'
 
         ScrollView:
             BoxLayout:
                 orientation: 'vertical'
-                padding: [20, 20, 20, 20]
-                spacing: 10
                 size_hint_y: None
                 height: self.minimum_height
+                padding: [20, 20, 20, 20]
+                spacing: 10
 
                 TextInput:
                     id: edit_type
                     hint_text: 'Tipo de prenda'
-                    multiline: False
-                    disabled: True
                     size_hint_y: None
                     height: '40dp'
-                    on_text: root.update_fields(self.text)
+                    multiline: False
+                    disabled: True
 
                 TextInput:
                     id: edit_custom_name
                     hint_text: 'Nombre Personalizado'
-                    multiline: False
                     size_hint_y: None
                     height: '40dp'
+                    multiline: False
 
                 BoxLayout:
                     orientation: 'vertical'
                     size_hint_y: None
                     height: 300
                     spacing: 10
+
                     Image:
                         id: edit_image
                         size_hint: (None, None)
@@ -363,14 +366,6 @@
                         size_hint_y: None
                         height: '40dp'
                         on_press: root.upload_image()
-
-                        BoxLayout:
-                            id: filechooser_layout
-                            orientation: 'vertical'
-                            size_hint_y: None
-                            height: '0dp'
-                            FileChooserListView:
-                                on_selection: root.on_image_selected(self.selection)
 
                 BoxLayout:
                     id: edit_measurement_inputs
@@ -385,6 +380,7 @@
                         multiline: False
                         size_hint_y: None
                         height: '40dp'
+                        disabled: True
 
                     TextInput:
                         id: edit_chest_circumference
@@ -392,6 +388,7 @@
                         multiline: False
                         size_hint_y: None
                         height: '40dp'
+                        disabled: True
 
                     TextInput:
                         id: edit_waist_circumference
@@ -399,6 +396,7 @@
                         multiline: False
                         size_hint_y: None
                         height: '40dp'
+                        disabled: True
 
                     TextInput:
                         id: edit_torso_length
@@ -406,6 +404,7 @@
                         multiline: False
                         size_hint_y: None
                         height: '40dp'
+                        disabled: True
 
                     TextInput:
                         id: edit_leg_length
@@ -413,18 +412,28 @@
                         multiline: False
                         size_hint_y: None
                         height: '40dp'
+                        disabled: True
 
-                Button:
-                    text: 'Guardar'
+                BoxLayout:
                     size_hint_y: None
                     height: '50dp'
-                    on_press: root.save_clothing_details()
+                    spacing: 10
 
+                    Button:
+                        text: 'Guardar'
+                        on_press: root.save_clothing_details()
+
+                    Button:
+                        text: 'Cancelar'
+                        on_press: root.cancel_edit()
                 Button:
-                    text: 'Cancelar'
+                    text: 'Eliminar'
                     size_hint_y: None
                     height: '50dp'
-                    on_press: root.manager.current = 'wardrobe_details'
+                    background_color: (1, 0, 0, 1)  # Rojo
+                    color: (1, 1, 1, 1)  # Texto blanco
+                    on_press: root.delete_clothing()
+
 
 <WardrobeDetailsScreen>:
     BoxLayout:
@@ -450,7 +459,7 @@
                 GridLayout:
                     id: clothing_grid
                     cols: 4
-                    spacing: 10
+                    spacing: [10,10]
                     size_hint_y: None
                     height: self.minimum_height
 

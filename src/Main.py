@@ -97,44 +97,14 @@ class WardrobeDetailsScreen(Screen):
         clothes = get_clothes_in_wardrobe(username, wardrobe_name)
         for clothing_id, clothing in clothes:
             btn = Button(text=clothing, size_hint_y=None, height=40)
-            btn.bind(on_press=lambda x, cid=clothing_id: self.show_clothing_info_popup(cid))
+            btn.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
             self.ids.clothing_grid.add_widget(btn)
-
-    def show_clothing_info_popup(self, clothing_id):
-        clothing_info = get_clothing_info(clothing_id)
-        
-        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
-        content.add_widget(Label(text=f"Tipo de prenda: {clothing_info['type']}", size_hint_y=None, height=40))
-        content.add_widget(Label(text=f"Altura: {clothing_info['height']} cm", size_hint_y=None, height=40))
-        content.add_widget(Label(text=f"Circunferencia del pecho: {clothing_info['chest_circumference']} cm", size_hint_y=None, height=40))
-        content.add_widget(Label(text=f"Circunferencia de la cintura: {clothing_info['waist_circumference']} cm", size_hint_y=None, height=40))
-        content.add_widget(Label(text=f"Largo del torso: {clothing_info['torso_length']} cm", size_hint_y=None, height=40))
-        content.add_widget(Label(text=f"Largo de la pierna: {clothing_info['leg_length']} cm", size_hint_y=None, height=40))
-        
-        btn_edit = Button(text='Editar', size_hint_y=None, height=50)
-        btn_delete = Button(text='Eliminar', size_hint_y=None, height=50)
-
-        btn_edit.bind(on_press=lambda x: self.edit_clothing(clothing_id))
-        btn_delete.bind(on_press=lambda x: self.delete_clothing(clothing_id))
-
-        content.add_widget(btn_edit)
-        content.add_widget(btn_delete)
-
-        popup = Popup(title='Información de la prenda', content=content, size_hint=(None, None), size=(400, 600))
-        popup.open()
-        self.popup = popup
 
     def edit_clothing(self, clothing_id):
         edit_screen = self.manager.get_screen('edit_clothing')
         edit_screen.clothing_id = clothing_id
-        self.manager.previous_screen = 'wardrobe_details'  # Establecer pantalla anterior
-        self.popup.dismiss()  # Cerrar el popup antes de cambiar la pantalla
+        self.manager.previous_screen = 'wardrobe_details'
         self.manager.current = 'edit_clothing'
-
-    def delete_clothing(self, clothing_id):
-        delete_clothing_from_wardrobe(clothing_id)
-        self.display_clothes(self.manager.current_wardrobe)
-        self.popup.dismiss()
 
 
 
@@ -154,55 +124,17 @@ class CategoryDetailsScreen(Screen):
         clothes = get_clothes_by_category(username, category)
         for clothing_id, clothing in clothes:
             btn = Button(text=clothing, size_hint_y=None, height=40)
-            btn.bind(on_press=lambda x, cid=clothing_id: self.show_clothing_info_popup(cid))
+            btn.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
             self.ids.category_grid.add_widget(btn)
 
     def update_category_title(self, category):
         self.ids.category_title.text = f'{category}'
 
-    def show_clothing_info_popup(self, clothing_id):
-        # Obtener la información de la prenda desde la base de datos
-        clothing_info = get_clothing_info(clothing_id)
-        
-        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
-        
-        # Añadir información de la prenda
-        content.add_widget(Label(text=f"Tipo de prenda: {clothing_info['type']}", size_hint_y=None, height=40))
-        content.add_widget(Label(text=f"Altura: {clothing_info['height']} cm", size_hint_y=None, height=40))
-        content.add_widget(Label(text=f"Circunferencia del pecho: {clothing_info['chest_circumference']} cm", size_hint_y=None, height=40))
-        content.add_widget(Label(text=f"Circunferencia de la cintura: {clothing_info['waist_circumference']} cm", size_hint_y=None, height=40))
-        content.add_widget(Label(text=f"Largo del torso: {clothing_info['torso_length']} cm", size_hint_y=None, height=40))
-        content.add_widget(Label(text=f"Largo de la pierna: {clothing_info['leg_length']} cm", size_hint_y=None, height=40))
-        
-        # Botones de editar y eliminar
-        btn_edit = Button(text='Editar', size_hint_y=None, height=50)
-        btn_delete = Button(text='Eliminar', size_hint_y=None, height=50)
-
-        # Añadir funcionalidad a los botones
-        btn_edit.bind(on_press=lambda x: self.edit_clothing(clothing_id))
-        btn_delete.bind(on_press=lambda x: self.delete_clothing(clothing_id))
-
-        content.add_widget(btn_edit)
-        content.add_widget(btn_delete)
-
-        popup = Popup(title='Información de la prenda', content=content, size_hint=(None, None), size=(400, 600))
-        popup.open()
-        self.popup = popup
-
     def edit_clothing(self, clothing_id):
         edit_screen = self.manager.get_screen('edit_clothing')
         edit_screen.clothing_id = clothing_id
-        self.manager.previous_screen = 'category_details'  # Establecer pantalla anterior
-        self.popup.dismiss()  # Cerrar el popup antes de cambiar la pantalla
+        self.manager.previous_screen = 'category_details'
         self.manager.current = 'edit_clothing'
-
-    def delete_clothing(self, clothing_id):
-        # Eliminar la prenda de la base de datos
-        delete_clothing_from_wardrobe(clothing_id)
-        # Actualizar la lista de prendas
-        self.display_category_items(self.manager.current_category)
-        # Cerrar el popup
-        self.popup.dismiss()
 
 class EditClothingScreen(Screen):
     clothing_id = None
@@ -290,6 +222,15 @@ class EditClothingScreen(Screen):
             self.manager.current = 'wardrobe_details'
         else:
             self.manager.current = 'category_details'
+
+    def cancel_edit(self):
+        # Regresar a la pantalla anterior
+        if self.manager.previous_screen == 'wardrobe_details':
+            self.manager.current = 'wardrobe_details'
+        else:
+            self.manager.current = 'category_details'
+
+    
 
     def upload_image(self):
         content = BoxLayout(orientation='vertical')
