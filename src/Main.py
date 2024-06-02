@@ -16,6 +16,8 @@ from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 from kivy.uix.filechooser import FileChooserListView
+from PIL import Image as PILImage
+import uuid
 
 
 
@@ -24,6 +26,13 @@ import sqlite3
 
 
 Window.size = (375, 667)
+
+IMAGE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..', 'assets')
+PROCESS_IMAGES_DIR = os.path.join(IMAGE_DIR, 'process_images')
+
+if not os.path.exists(PROCESS_IMAGES_DIR):
+    os.makedirs(PROCESS_IMAGES_DIR)
+
 class ImageButton(ButtonBehavior, Image):
     pass
 
@@ -138,6 +147,7 @@ class CategoryDetailsScreen(Screen):
 
 class EditClothingScreen(Screen):
     clothing_id = None
+    temp_image_path = None
 
     def on_pre_enter(self):
         self.clear_measurement_widgets()
@@ -209,28 +219,66 @@ class EditClothingScreen(Screen):
         self.ids.edit_type.text = 'Seleccionar prenda'
 
     def save_clothing_details(self):
+        clothing_info = get_clothing_info(self.clothing_id)
+        old_image_path = clothing_info['image'] if clothing_info else None
+
         update_clothing_details(self.clothing_id,
                                 self.ids.edit_type.text,
                                 self.ids.edit_custom_name.text,
-                                self.ids.edit_image.source,
+                                self.temp_image_path if self.temp_image_path else self.ids.edit_image.source,
                                 self.ids.edit_height.text,
                                 self.ids.edit_chest_circumference.text,
                                 self.ids.edit_waist_circumference.text,
                                 self.ids.edit_torso_length.text,
                                 self.ids.edit_leg_length.text)
+        
+        # Eliminar la imagen antigua si se ha actualizado
+        if self.temp_image_path and old_image_path and old_image_path != self.ids.edit_image.source:
+            if os.path.exists(old_image_path):
+                os.remove(old_image_path)
+
+        # Actualizar la ruta de la imagen y limpiar la imagen temporal
+        if self.temp_image_path:
+            self.ids.edit_image.source = self.temp_image_path
+            self.temp_image_path = None
+
         if self.manager.previous_screen == 'wardrobe_details':
             self.manager.current = 'wardrobe_details'
         else:
             self.manager.current = 'category_details'
 
     def cancel_edit(self):
+        # Eliminar la imagen temporal si existe
+        if self.temp_image_path and os.path.exists(self.temp_image_path):
+            os.remove(self.temp_image_path)
+        self.temp_image_path = None
+
         # Regresar a la pantalla anterior
         if self.manager.previous_screen == 'wardrobe_details':
             self.manager.current = 'wardrobe_details'
         else:
             self.manager.current = 'category_details'
 
-    
+    def delete_clothing(self):
+        try:
+            clothing_info = get_clothing_info(self.clothing_id)
+            image_path = clothing_info['image'] if clothing_info else None
+
+            delete_clothing_from_wardrobe(self.clothing_id)
+
+            if image_path and os.path.exists(image_path):
+                os.remove(image_path)
+
+            if self.manager.previous_screen == 'wardrobe_details':
+                self.manager.current = 'wardrobe_details'
+            else:
+                self.manager.current = 'category_details'
+
+        except Exception as e:
+            popup = Popup(title='Error al eliminar la prenda',
+                          content=Label(text=f'Ocurrió un error al eliminar la prenda: {str(e)}'),
+                          size_hint=(None, None), size=(400, 400))
+            popup.open()
 
     def upload_image(self):
         content = BoxLayout(orientation='vertical')
@@ -251,12 +299,45 @@ class EditClothingScreen(Screen):
     def select_image(self, instance):
         selection = self.filechooser.selection
         if selection:
-            self.ids.edit_image.source = selection[0]
+            self.process_image(selection[0])
         self.popup.dismiss()
 
+    def process_image(self, image_path):
+        try:
+            # Abrir la imagen original
+            original_image = PILImage.open(image_path)
+            # Redimensionar la imagen
+            resized_image = original_image.resize((335, 250))
+            # Crear un nombre de archivo único basado en clothing_id
+            unique_filename = f"imagen_almacenamiento_id_{self.clothing_id}.jpg"
+            # Crear el path de destino temporal
+            temp_path = os.path.join(PROCESS_IMAGES_DIR, f"temp_{unique_filename}")
+            # Guardar la imagen redimensionada
+            resized_image.save(temp_path)
+            # Actualizar la imagen en la interfaz y guardar la ruta temporal
+            self.temp_image_path = temp_path
+            self.ids.edit_image.source = temp_path
+        except Exception as e:
+            popup = Popup(title='Error al procesar la imagen',
+                          content=Label(text=f'Ocurrió un error al procesar la imagen: {str(e)}'),
+                          size_hint=(None, None), size=(400, 400))
+            popup.open()
+
+
+
+
+
 class MesureScreen(Screen):
+    temp_image_path = None
+
     def on_pre_enter(self, *args):
         self.update_wardrobe_spinner()
+
+    def on_pre_leave(self, *args):
+        # Eliminar la imagen temporal si existe
+        if self.temp_image_path and os.path.exists(self.temp_image_path):
+            os.remove(self.temp_image_path)
+        self.temp_image_path = None
 
     def update_wardrobe_spinner(self):
         username = self.manager.get_screen('login').ids.username.text
@@ -264,7 +345,7 @@ class MesureScreen(Screen):
         self.ids.wardrobe_spinner.values = wardrobes
 
     def on_spinner_select(self, text):
-        # Limpiar todos los widgets de entrada
+        # Limpiar todos los widgets de entrada y eliminar imagen temporal
         self.clear_measurement_widgets()
         
         self.ids.height.disabled = True
@@ -308,6 +389,11 @@ class MesureScreen(Screen):
             self.ids.torso_length.disabled = False
 
     def clear_measurement_widgets(self):
+        # Eliminar la imagen temporal si existe
+        if self.temp_image_path and os.path.exists(self.temp_image_path):
+            os.remove(self.temp_image_path)
+        self.temp_image_path = None
+        
         self.ids.height.text = ''
         self.ids.chest_circumference.text = ''
         self.ids.waist_circumference.text = ''
@@ -326,12 +412,18 @@ class MesureScreen(Screen):
             if not clothing_type or clothing_type == 'Seleccionar prenda':
                 raise ValueError("Por favor, seleccione un tipo de prenda")
 
-            save_measurements_clothing(username, clothing_type, wardrobe, custom_name, image, height, chest_circumference, waist_circumference, torso_length, leg_length)
+            save_measurements_clothing(username, clothing_type, wardrobe, custom_name, self.temp_image_path if self.temp_image_path else image, height, chest_circumference, waist_circumference, torso_length, leg_length)
             
             popup = Popup(title='Medidas Guardadas',
                           content=Label(text='Las medidas han sido guardadas correctamente'),
                           size_hint=(None, None), size=(400, 400))
             popup.open()
+            
+            # Actualizar la ruta de la imagen
+            if self.temp_image_path:
+                self.ids.image.source = self.temp_image_path
+                self.temp_image_path = None
+
         except Exception as e:
             popup = Popup(title='Error',
                           content=Label(text=f'Ocurrió un error: {str(e)}'),
@@ -357,8 +449,34 @@ class MesureScreen(Screen):
     def select_image(self, instance):
         selection = self.filechooser.selection
         if selection:
-            self.ids.image.source = selection[0]
+            self.process_image(selection[0])
         self.popup.dismiss()
+
+    def process_image(self, image_path):
+        try:
+            # Generar un nombre de archivo único
+            unique_id = str(uuid.uuid4())
+            unique_filename = f"imagen_almacenamiento_id_{unique_id}.jpg"
+
+            # Abrir la imagen original
+            original_image = PILImage.open(image_path)
+            # Redimensionar la imagen
+            resized_image = original_image.resize((335, 250))
+            # Crear el path de destino
+            temp_path = os.path.join(PROCESS_IMAGES_DIR, unique_filename)
+            # Guardar la imagen redimensionada
+            resized_image.save(temp_path)
+            # Actualizar la imagen en la interfaz y guardar la ruta temporal
+            self.temp_image_path = temp_path
+            self.ids.image.source = temp_path
+        except Exception as e:
+            popup = Popup(title='Error al procesar la imagen',
+                          content=Label(text=f'Ocurrió un error al procesar la imagen: {str(e)}'),
+                          size_hint=(None, None), size=(400, 400))
+            popup.open()
+
+
+
 class AccountScreen(Screen):
     def display_account_info(self, username):
         wardrobe_count = get_wardrobe_count(username)

@@ -51,6 +51,6 @@ android.bootstrap = sdl2
 # Añadir la siguiente línea para deshabilitar los errores de cast de función estrictos
 android.ndk_cflags = -Wno-cast-function-type-strict
 
-android.gradle_dependencies = "com.android.tools.build:gradle:4.0.1"
-android.gradle_version = 4.0.1
+android.gradle_dependencies = "com.android.tools.build:gradle:7.0.2"
+android.gradle_version = 7.0.2
 
