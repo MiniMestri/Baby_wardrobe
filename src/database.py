@@ -115,14 +115,6 @@ def save_measurements(username,name, height, chest_circumference, waist_circumfe
     connection.commit()
     connection.close()
 
-def get_existing_names():
-    connection = create_connection()
-    cursor = connection.cursor()
-    cursor.execute("SELECT nombre FROM medidas_bebe")
-    names = [row[0] for row in cursor.fetchall()]
-    connection.close()
-    return names
-
 def save_measurements_clothing(username, clothing_type, wardrobe_name, custom_name, image, height, chest_circumference, waist_circumference, torso_length, leg_length):
     try:
         connection = create_connection()
@@ -258,6 +250,30 @@ def get_all_clothes(username):
     clothes = cursor.fetchall()
     connection.close()
     return clothes
+
+def get_existing_names(username):
+    connection = create_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT nombre FROM medidas_bebe WHERE nombre_usuario = ?", (username,))
+    names = [row[0] for row in cursor.fetchall()]
+    connection.close()
+    return names
+
+
+def get_baby_measurements(username, baby_name):
+    connection = create_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+    SELECT nombre, altura, circunferencia_pecho, circunferencia_cintura, largo_torso, largo_pierna
+    FROM medidas_bebe
+    WHERE nombre_usuario = ? AND nombre = ?
+    ORDER BY id DESC
+    LIMIT 1
+    ''', (username, baby_name))
+    measurements = cursor.fetchone()
+    connection.close()
+    return measurements
+
 
 
 create_tables()

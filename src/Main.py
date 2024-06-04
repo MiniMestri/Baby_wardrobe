@@ -21,7 +21,7 @@ import uuid
 
 
 
-from database import get_all_clothes,update_clothing_details,get_clothes_by_category,get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
+from database import get_baby_measurements,get_existing_names,get_all_clothes,update_clothing_details,get_clothes_by_category,get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
 import sqlite3
 
 
@@ -125,23 +125,43 @@ class WardrobeDetailsScreen(Screen):
 
 
 class HomeScreen(Screen):
+    selected_baby = None
+
     def show_category(self, category):
         self.manager.current_category = category
         self.manager.current = 'category_details'
 
     def on_pre_enter(self, *args):
+        self.update_baby_spinner()
+        self.display_unfit_clothes()
+
+    def update_baby_spinner(self):
+        username = self.manager.get_screen('login').ids.username.text
+        existing_names = get_existing_names(username)
+        self.ids.baby_spinner.values = existing_names
+        if existing_names:
+            self.ids.baby_spinner.text = existing_names[0]
+            self.selected_baby = existing_names[0]
+
+    def update_baby_selection(self, baby_name):
+        self.selected_baby = baby_name
         self.display_unfit_clothes()
 
     def display_unfit_clothes(self):
         self.ids.unfit_clothes_grid.clear_widgets()
         username = self.manager.get_screen('login').ids.username.text
-        baby_measurements = get_latest_baby_measurements(username)
+        baby_name = self.selected_baby
+
+        if not baby_name:
+            print("No baby selected")
+            return
+
+        baby_measurements = get_baby_measurements(username, baby_name)
         
         if not baby_measurements:
             print("No baby measurements found")
             return
 
-        print("Baby measurements found:", baby_measurements)
         _, baby_height, baby_chest, baby_waist, baby_torso, baby_leg = baby_measurements
 
         clothes = get_all_clothes(username)
@@ -160,7 +180,7 @@ class HomeScreen(Screen):
                     self.ids.unfit_clothes_grid.add_widget(img)
                     total_clothes += 1
         
-        self.ids.unfit_clothes_grid.width = total_clothes * 160  
+        self.ids.unfit_clothes_grid.width = total_clothes * 160
 
     def edit_clothing(self, clothing_id):
         edit_screen = self.manager.get_screen('edit_clothing')
@@ -573,7 +593,8 @@ class ChangePasswordScreen(Screen):
 
 class BabyMeasurementsScreen(Screen):
     def on_pre_enter(self, *args):
-        self.ids.spinner_name.values = get_existing_names() + ["Nuevo"]
+        username = self.manager.get_screen('login').ids.username.text
+        self.ids.spinner_name.values = get_existing_names(username) + ["Nuevo"]
         self.ids.spinner_name.text = "Seleccionar o Nuevo"
 
     def save_measurements(self, selected_name, new_name, height, chest_circumference, waist_circumference, torso_length, leg_length):

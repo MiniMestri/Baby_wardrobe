@@ -84,6 +84,21 @@
                 pos: self.pos
                 size: self.size
 
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '50dp'
+            Label:
+                text: 'Seleccionar Bebé:'
+                size_hint_x: None
+                width: '150dp'
+                color: 0, 0, 0, 1
+            Spinner:
+                id: baby_spinner
+                text: 'Seleccionar bebé'
+                values: ['Seleccionar bebé']  # Esto se actualizará dinámicamente
+                on_text: root.update_baby_selection(self.text)
+
         Label:
             text: '[b]Prendas Pequeñas[/b]'
             markup: True
@@ -212,6 +227,7 @@
             ImageButton:
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
+
 
 
 
@@ -776,7 +792,7 @@
         spacing: 10
         canvas.before:
             Color:
-                rgba:  0.784, 0.902, 0.980, 1 
+                rgba:  0.784, 0.902, 0.980, 1  # Blanco
             Rectangle:
                 pos: self.pos
                 size: self.size
@@ -830,6 +846,7 @@
         Button:
             text: 'Volver'
             on_press: root.manager.current = 'account'
+
 
 
 
