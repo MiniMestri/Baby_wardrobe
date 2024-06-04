@@ -114,10 +114,15 @@ class WardrobeDetailsScreen(Screen):
         clothes = get_clothes_in_wardrobe(username, wardrobe_name)
         for clothing_id, clothing in clothes:
             clothing_info = get_clothing_info(clothing_id)
-            image_path = clothing_info['image'] if clothing_info and clothing_info['image'] else 'default_image_path'
-            img = ImageButton(source=image_path, size_hint_y=None, height=200)
-            img.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
-            self.ids.clothing_grid.add_widget(img)
+            if clothing_info:
+                image_path = clothing_info['image']
+                if image_path and os.path.exists(image_path):
+                    img = ImageButton(source=image_path, size_hint_y=None, height=200)
+                else:
+                    custom_name = clothing_info['custom_name'] if clothing_info['custom_name'] else clothing_info['type']
+                    img = Button(text=custom_name, size_hint_y=None, height=200)
+                img.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
+                self.ids.clothing_grid.add_widget(img)
 
     def edit_clothing(self, clothing_id):
         edit_screen = self.manager.get_screen('edit_clothing')
@@ -178,8 +183,12 @@ class HomeScreen(Screen):
                    (clothing_info['waist_circumference'] and clothing_info['waist_circumference'] < baby_waist) or \
                    (clothing_info['torso_length'] and clothing_info['torso_length'] < baby_torso) or \
                    (clothing_info['leg_length'] and clothing_info['leg_length'] < baby_leg):
-                    image_path = clothing_info['image'] if clothing_info['image'] else 'default_image_path'
-                    img = ImageButton(source=image_path, size_hint=(None, None), size=(150, 150))
+                    image_path = clothing_info['image']
+                    if image_path and os.path.exists(image_path):
+                        img = ImageButton(source=image_path, size_hint=(None, None), size=(150, 150))
+                    else:
+                        custom_name = clothing_info['custom_name'] if clothing_info['custom_name'] else clothing_info['type']
+                        img = Button(text=custom_name, size_hint=(None, None), size=(150, 150))
                     img.bind(on_press=lambda x, cid=clothing_id[0]: self.edit_clothing(cid))
                     self.ids.unfit_clothes_grid.add_widget(img)
                     total_clothes += 1
@@ -211,7 +220,8 @@ class CategoryDetailsScreen(Screen):
             if image_path and os.path.exists(image_path):
                 img = ImageButton(source=image_path, size_hint_y=None, height=100, on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
             else:
-                img = Button(text=clothing, size_hint_y=None, height=100)
+                custom_name = clothing_info['custom_name'] if clothing_info['custom_name'] else clothing_info['type']
+                img = Button(text=custom_name, size_hint_y=None, height=100)
                 img.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
             self.ids.category_grid.add_widget(img)
 
