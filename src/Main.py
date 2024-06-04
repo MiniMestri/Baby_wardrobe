@@ -21,7 +21,7 @@ import uuid
 
 
 
-from database import update_clothing_details,get_clothes_by_category,get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
+from database import get_all_clothes,update_clothing_details,get_clothes_by_category,get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
 import sqlite3
 
 
@@ -128,6 +128,45 @@ class HomeScreen(Screen):
     def show_category(self, category):
         self.manager.current_category = category
         self.manager.current = 'category_details'
+
+    def on_pre_enter(self, *args):
+        self.display_unfit_clothes()
+
+    def display_unfit_clothes(self):
+        self.ids.unfit_clothes_grid.clear_widgets()
+        username = self.manager.get_screen('login').ids.username.text
+        baby_measurements = get_latest_baby_measurements(username)
+        
+        if not baby_measurements:
+            print("No baby measurements found")
+            return
+
+        print("Baby measurements found:", baby_measurements)
+        _, baby_height, baby_chest, baby_waist, baby_torso, baby_leg = baby_measurements
+
+        clothes = get_all_clothes(username)
+        total_clothes = 0
+        for clothing_id in clothes:
+            clothing_info = get_clothing_info(clothing_id[0])
+            if clothing_info:
+                if (clothing_info['height'] and clothing_info['height'] < baby_height) or \
+                   (clothing_info['chest_circumference'] and clothing_info['chest_circumference'] < baby_chest) or \
+                   (clothing_info['waist_circumference'] and clothing_info['waist_circumference'] < baby_waist) or \
+                   (clothing_info['torso_length'] and clothing_info['torso_length'] < baby_torso) or \
+                   (clothing_info['leg_length'] and clothing_info['leg_length'] < baby_leg):
+                    image_path = clothing_info['image'] if clothing_info['image'] else 'default_image_path'
+                    img = ImageButton(source=image_path, size_hint=(None, None), size=(150, 150))
+                    img.bind(on_press=lambda x, cid=clothing_id[0]: self.edit_clothing(cid))
+                    self.ids.unfit_clothes_grid.add_widget(img)
+                    total_clothes += 1
+        
+        self.ids.unfit_clothes_grid.width = total_clothes * 160  
+
+    def edit_clothing(self, clothing_id):
+        edit_screen = self.manager.get_screen('edit_clothing')
+        edit_screen.clothing_id = clothing_id
+        self.manager.previous_screen = 'home'
+        self.manager.current = 'edit_clothing'
 
 class CategoryDetailsScreen(Screen):
     def on_pre_enter(self, *args):
@@ -258,6 +297,8 @@ class EditClothingScreen(Screen):
 
         if self.manager.previous_screen == 'wardrobe_details':
             self.manager.current = 'wardrobe_details'
+        elif self.manager.previous_screen == 'home':
+            self.manager.current = 'home'
         else:
             self.manager.current = 'category_details'
 
@@ -270,6 +311,8 @@ class EditClothingScreen(Screen):
         # Regresar a la pantalla anterior
         if self.manager.previous_screen == 'wardrobe_details':
             self.manager.current = 'wardrobe_details'
+        elif self.manager.previous_screen == 'home':
+            self.manager.current = 'home'
         else:
             self.manager.current = 'category_details'
 
@@ -285,6 +328,8 @@ class EditClothingScreen(Screen):
 
             if self.manager.previous_screen == 'wardrobe_details':
                 self.manager.current = 'wardrobe_details'
+            elif self.manager.previous_screen == 'home':
+                self.manager.current = 'home'
             else:
                 self.manager.current = 'category_details'
 
@@ -318,17 +363,11 @@ class EditClothingScreen(Screen):
 
     def process_image(self, image_path):
         try:
-            # Abrir la imagen original
             original_image = PILImage.open(image_path)
-            # Redimensionar la imagen
             resized_image = original_image.resize((335, 250))
-            # Crear un nombre de archivo único basado en clothing_id
             unique_filename = f"imagen_almacenamiento_id_{self.clothing_id}.jpg"
-            # Crear el path de destino temporal
             temp_path = os.path.join(PROCESS_IMAGES_DIR, f"temp_{unique_filename}")
-            # Guardar la imagen redimensionada
             resized_image.save(temp_path)
-            # Actualizar la imagen en la interfaz y guardar la ruta temporal
             self.temp_image_path = temp_path
             self.ids.edit_image.source = temp_path
         except Exception as e:
@@ -336,9 +375,6 @@ class EditClothingScreen(Screen):
                           content=Label(text=f'Ocurrió un error al procesar la imagen: {str(e)}'),
                           size_hint=(None, None), size=(400, 400))
             popup.open()
-
-
-
 
 
 class MesureScreen(Screen):

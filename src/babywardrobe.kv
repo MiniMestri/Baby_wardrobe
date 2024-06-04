@@ -83,10 +83,38 @@
             Rectangle:
                 pos: self.pos
                 size: self.size
+
         Label:
-            font_size: '48sp'
-            text: 'Notificaciones'
-            color: 0, 0, 0, 1
+            text: '[b]Prendas Pequeñas[/b]'
+            markup: True
+            color: 1, 1, 1, 1
+            font_size: '24sp'
+            size_hint_y: None
+            height: '50dp'
+            canvas.before:
+                Color:
+                    rgba: 1, 0, 0, 1  # Rojo
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+        ScrollView:
+            size_hint_y: None
+            height: 150
+            do_scroll_x: True
+            do_scroll_y: False
+            scroll_type: ['content']
+            GridLayout:
+                id: unfit_clothes_grid
+                cols: None
+                rows: 1
+                size_hint_x: None
+                size_hint_y: None
+                row_default_height: 150
+                row_force_default: True
+                spacing: [5, 5]
+                padding: [10, 10, 10, 10]
+                width: self.minimum_width
 
         GridLayout:
             cols: 4
@@ -101,7 +129,7 @@
                     size: self.size
 
             ImageButton:
-                background_color: (200/255, 230/255, 250/255, 1)  
+                background_color: (200/255, 230/255, 250/255, 1)
                 source: app.get_image_path('boton_body.png')
                 on_press: root.show_category('Body')
             ImageButton:
@@ -184,6 +212,11 @@
             ImageButton:
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
+
+
+
+
+
 
 <CategoryDetailsScreen>:
     BoxLayout:
@@ -743,7 +776,7 @@
         spacing: 10
         canvas.before:
             Color:
-                rgba:  0.784, 0.902, 0.980, 1  # Blanco
+                rgba:  0.784, 0.902, 0.980, 1 
             Rectangle:
                 pos: self.pos
                 size: self.size

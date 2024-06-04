@@ -191,6 +191,7 @@ def get_latest_baby_measurements(username):
     measurements = cursor.fetchone()
     connection.close()
     return measurements
+
 def get_clothes_in_wardrobe(username, wardrobe_name):
     connection = create_connection()
     cursor = connection.cursor()
@@ -250,6 +251,13 @@ def update_clothing_details(clothing_id, type, custom_name, image, height, chest
     connection.commit()
     connection.close()
 
+def get_all_clothes(username):
+    connection = create_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT id FROM medidas_prenda WHERE nombre = ?", (username,))
+    clothes = cursor.fetchall()
+    connection.close()
+    return clothes
 
 
 create_tables()
