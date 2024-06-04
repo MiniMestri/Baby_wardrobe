@@ -294,8 +294,11 @@ def check_for_reminders(username):
     for record in records:
         baby_name, last_measurement_date = record
         if last_measurement_date:
-            last_measurement_date = datetime.strptime(last_measurement_date, "%Y-%m-%d %H:%M:%S")
-            if datetime.now() - last_measurement_date > timedelta(days=1):
+            try:
+                last_measurement_date = datetime.strptime(last_measurement_date, "%Y-%m-%d %H:%M:%S.%f")
+            except ValueError:
+                last_measurement_date = datetime.strptime(last_measurement_date, "%Y-%m-%d %H:%M:%S")
+            if datetime.now() - last_measurement_date > timedelta(days=15):
                 reminders.append(baby_name)
 
     if reminders:
@@ -304,6 +307,7 @@ def check_for_reminders(username):
                       content=Label(text=reminder_text),
                       size_hint=(None, None), size=(400, 400))
         popup.open()
+
 
 
 

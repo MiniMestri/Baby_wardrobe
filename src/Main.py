@@ -642,6 +642,7 @@ class WindowManager(ScreenManager):
     def login(self, username, password):
         if validate_user(username, password):
             self.current = 'home'
+            self.check_reminders(username)
         else:
             popup = Popup(title='Error de Inicio de Sesión',
                           content=Label(text='Nombre de usuario o contraseña incorrectos'),
@@ -664,6 +665,9 @@ class WindowManager(ScreenManager):
 
     def logout(self):
         App.get_running_app().stop()
+
+    def check_reminders(self, username):
+        check_for_reminders(username)
 
 class BabyWardrobeApp(App):
     def build(self):
