@@ -31,6 +31,7 @@ Window.size = (375, 667)
 
 IMAGE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..', 'assets')
 PROCESS_IMAGES_DIR = os.path.join(IMAGE_DIR, 'process_images')
+ICONS_IMAGES_DIR = os.path.join(IMAGE_DIR, 'iconos')
 
 if not os.path.exists(PROCESS_IMAGES_DIR):
     os.makedirs(PROCESS_IMAGES_DIR)
@@ -116,13 +117,24 @@ class WardrobeDetailsScreen(Screen):
             clothing_info = get_clothing_info(clothing_id)
             if clothing_info:
                 image_path = clothing_info['image']
-                if image_path and os.path.exists(image_path):
-                    img = ImageButton(source=image_path, size_hint_y=None, height=200)
-                else:
-                    custom_name = clothing_info['custom_name'] if clothing_info['custom_name'] else clothing_info['type']
-                    img = Button(text=custom_name, size_hint_y=None, height=200)
+                if not image_path or not os.path.exists(image_path):
+                    image_path = self.get_default_image(clothing_info['type'])
+                img = ImageButton(source=image_path, size_hint_y=None, height=200)
                 img.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
                 self.ids.clothing_grid.add_widget(img)
+
+    def get_default_image(self, clothing_type):
+        default_images = {
+            'Body': f'{ICONS_IMAGES_DIR}/boton_body.png',
+            'Buzos': f'{ICONS_IMAGES_DIR}/boton_buzos.png',
+            'Cubrepañales': f'{ICONS_IMAGES_DIR}/boton_cubrepanales.png',
+            'Vestidos': f'{ICONS_IMAGES_DIR}/boton_faldon.png',
+            'Jesusitos': f'{ICONS_IMAGES_DIR}/boton_jesusitos.png',
+            'Peleles': f'{ICONS_IMAGES_DIR}/boton_pelele.png',
+            'Petos': f'{ICONS_IMAGES_DIR}/boton_petos.png',
+            'Ranitas': f'{ICONS_IMAGES_DIR}/boton_ranitas.png'
+        }
+        return default_images.get(clothing_type, 'path/to/default_image.png')
 
     def edit_clothing(self, clothing_id):
         edit_screen = self.manager.get_screen('edit_clothing')
@@ -184,16 +196,27 @@ class HomeScreen(Screen):
                    (clothing_info['torso_length'] and clothing_info['torso_length'] < baby_torso) or \
                    (clothing_info['leg_length'] and clothing_info['leg_length'] < baby_leg):
                     image_path = clothing_info['image']
-                    if image_path and os.path.exists(image_path):
-                        img = ImageButton(source=image_path, size_hint=(None, None), size=(150, 150))
-                    else:
-                        custom_name = clothing_info['custom_name'] if clothing_info['custom_name'] else clothing_info['type']
-                        img = Button(text=custom_name, size_hint=(None, None), size=(150, 150))
+                    if not image_path or not os.path.exists(image_path):
+                        image_path = self.get_default_image(clothing_info['type'])
+                    img = ImageButton(source=image_path, size_hint=(None, None), size=(150, 150))
                     img.bind(on_press=lambda x, cid=clothing_id[0]: self.edit_clothing(cid))
                     self.ids.unfit_clothes_grid.add_widget(img)
                     total_clothes += 1
         
         self.ids.unfit_clothes_grid.width = total_clothes * 160
+
+    def get_default_image(self, clothing_type):
+        default_images = {
+            'Body': f'{ICONS_IMAGES_DIR}/boton_body.png',
+            'Buzos': f'{ICONS_IMAGES_DIR}/boton_buzos.png',
+            'Cubrepañales': f'{ICONS_IMAGES_DIR}/boton_cubrepanales.png',
+            'Vestidos': f'{ICONS_IMAGES_DIR}/boton_faldon.png',
+            'Jesusitos': f'{ICONS_IMAGES_DIR}/boton_jesusitos.png',
+            'Peleles': f'{ICONS_IMAGES_DIR}/boton_pelele.png',
+            'Petos': f'{ICONS_IMAGES_DIR}/boton_petos.png',
+            'Ranitas': f'{ICONS_IMAGES_DIR}/boton_ranitas.png'
+        }
+        return default_images.get(clothing_type, 'path/to/default_image.png')
 
     def edit_clothing(self, clothing_id):
         edit_screen = self.manager.get_screen('edit_clothing')
@@ -217,13 +240,23 @@ class CategoryDetailsScreen(Screen):
         for clothing_id, clothing in clothes:
             clothing_info = get_clothing_info(clothing_id)
             image_path = clothing_info['image'] if clothing_info else None
-            if image_path and os.path.exists(image_path):
-                img = ImageButton(source=image_path, size_hint_y=None, height=100, on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
-            else:
-                custom_name = clothing_info['custom_name'] if clothing_info['custom_name'] else clothing_info['type']
-                img = Button(text=custom_name, size_hint_y=None, height=100)
-                img.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
+            if not image_path or not os.path.exists(image_path):
+                image_path = self.get_default_image(clothing_info['type'])
+            img = ImageButton(source=image_path, size_hint_y=None, height=100, on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
             self.ids.category_grid.add_widget(img)
+
+    def get_default_image(self, clothing_type):
+        default_images = {
+            'Body': f'{ICONS_IMAGES_DIR}/boton_body.png',
+            'Buzos': f'{ICONS_IMAGES_DIR}/boton_buzos.png',
+            'Cubrepañales': f'{ICONS_IMAGES_DIR}/boton_cubrepanales.png',
+            'Vestidos': f'{ICONS_IMAGES_DIR}/boton_faldon.png',
+            'Jesusitos': f'{ICONS_IMAGES_DIR}/boton_jesusitos.png',
+            'Peleles': f'{ICONS_IMAGES_DIR}/boton_pelele.png',
+            'Petos': f'{ICONS_IMAGES_DIR}/boton_petos.png',
+            'Ranitas': f'{ICONS_IMAGES_DIR}/boton_ranitas.png'
+        }
+        return default_images.get(clothing_type, 'path/to/default_image.png')
 
     def update_category_title(self, category):
         self.ids.category_title.text = f'{category}'
