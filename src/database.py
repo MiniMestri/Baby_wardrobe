@@ -1,6 +1,9 @@
 import sqlite3
 import sys
 import os
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
+from datetime import datetime, timedelta
 
 
 if getattr(sys, 'frozen', False):
@@ -43,6 +46,7 @@ def create_tables():
         circunferencia_cintura REAL,
         largo_torso REAL,
         largo_pierna REAL,
+        fecha_medicion DATE,
         FOREIGN KEY(nombre_usuario) REFERENCES login(username)
     )''')
     cursor.execute('''
@@ -70,6 +74,7 @@ def create_tables():
     )''')
     connection.commit()
     connection.close()
+
 
 
 def add_user(username, password):
@@ -100,18 +105,18 @@ def change_password(username, old_password, new_password):
     return False
 
 
-def save_measurements(username,name, height, chest_circumference, waist_circumference, torso_length, leg_length):
+def save_measurements(username, name, height, chest_circumference, waist_circumference, torso_length, leg_length):
     connection = create_connection()
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM medidas_bebe WHERE nombre = ?", (name,))
+    cursor.execute("SELECT * FROM medidas_bebe WHERE nombre_usuario = ? AND nombre = ?", (username, name))
     if cursor.fetchone():
-        cursor.execute('''UPDATE medidas_bebe SET altura = ?, circunferencia_pecho = ?, circunferencia_cintura = ?, largo_torso = ?, largo_pierna = ?
-                          WHERE nombre = ?''',
-                       (height, chest_circumference, waist_circumference, torso_length, leg_length, name))
+        cursor.execute('''UPDATE medidas_bebe SET altura = ?, circunferencia_pecho = ?, circunferencia_cintura = ?, largo_torso = ?, largo_pierna = ?, fecha_medicion = ?
+                          WHERE nombre_usuario = ? AND nombre = ?''',
+                       (height, chest_circumference, waist_circumference, torso_length, leg_length, datetime.now(), username, name))
     else:
-        cursor.execute('''INSERT INTO medidas_bebe (nombre_usuario,nombre, altura, circunferencia_pecho, circunferencia_cintura, largo_torso, largo_pierna)
-                          VALUES (?,?, ?, ?, ?, ?, ?)''',
-                       (username,name, height, chest_circumference, waist_circumference, torso_length, leg_length))
+        cursor.execute('''INSERT INTO medidas_bebe (nombre_usuario, nombre, altura, circunferencia_pecho, circunferencia_cintura, largo_torso, largo_pierna, fecha_medicion)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                       (username, name, height, chest_circumference, waist_circumference, torso_length, leg_length, datetime.now()))
     connection.commit()
     connection.close()
 
@@ -273,6 +278,32 @@ def get_baby_measurements(username, baby_name):
     measurements = cursor.fetchone()
     connection.close()
     return measurements
+
+def check_for_reminders(username):
+    connection = create_connection()
+    cursor = connection.cursor()
+    cursor.execute('''
+    SELECT nombre, fecha_medicion
+    FROM medidas_bebe
+    WHERE nombre_usuario = ?
+    ''', (username,))
+    records = cursor.fetchall()
+    connection.close()
+
+    reminders = []
+    for record in records:
+        baby_name, last_measurement_date = record
+        if last_measurement_date:
+            last_measurement_date = datetime.strptime(last_measurement_date, "%Y-%m-%d %H:%M:%S")
+            if datetime.now() - last_measurement_date > timedelta(days=1):
+                reminders.append(baby_name)
+
+    if reminders:
+        reminder_text = "Es momento de actualizar las medidas de: " + ", ".join(reminders)
+        popup = Popup(title='Recordatorio de Crecimiento',
+                      content=Label(text=reminder_text),
+                      size_hint=(None, None), size=(400, 400))
+        popup.open()
 
 
 

@@ -18,10 +18,12 @@ from kivy.lang import Builder
 from kivy.uix.filechooser import FileChooserListView
 from PIL import Image as PILImage
 import uuid
+from datetime import datetime, timedelta
 
 
 
-from database import get_baby_measurements,get_existing_names,get_all_clothes,update_clothing_details,get_clothes_by_category,get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
+
+from database import check_for_reminders,get_baby_measurements,get_existing_names,get_all_clothes,update_clothing_details,get_clothes_by_category,get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
 import sqlite3
 
 
@@ -32,6 +34,8 @@ PROCESS_IMAGES_DIR = os.path.join(IMAGE_DIR, 'process_images')
 
 if not os.path.exists(PROCESS_IMAGES_DIR):
     os.makedirs(PROCESS_IMAGES_DIR)
+
+
 
 class ImageButton(ButtonBehavior, Image):
     pass
@@ -187,6 +191,10 @@ class HomeScreen(Screen):
         edit_screen.clothing_id = clothing_id
         self.manager.previous_screen = 'home'
         self.manager.current = 'edit_clothing'
+
+    def check_reminders(self):
+        username = self.manager.get_screen('login').ids.username.text
+        check_for_reminders(username)
 
 class CategoryDetailsScreen(Screen):
     def on_pre_enter(self, *args):
