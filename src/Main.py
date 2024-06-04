@@ -18,10 +18,12 @@ from kivy.lang import Builder
 from kivy.uix.filechooser import FileChooserListView
 from PIL import Image as PILImage
 import uuid
+from datetime import datetime, timedelta
 
 
 
-from database import get_baby_measurements,get_existing_names,get_all_clothes,update_clothing_details,get_clothes_by_category,get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
+
+from database import check_for_reminders,get_baby_measurements,get_existing_names,get_all_clothes,update_clothing_details,get_clothes_by_category,get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
 import sqlite3
 
 
@@ -29,9 +31,12 @@ Window.size = (375, 667)
 
 IMAGE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..', 'assets')
 PROCESS_IMAGES_DIR = os.path.join(IMAGE_DIR, 'process_images')
+ICONS_IMAGES_DIR = os.path.join(IMAGE_DIR, 'iconos')
 
 if not os.path.exists(PROCESS_IMAGES_DIR):
     os.makedirs(PROCESS_IMAGES_DIR)
+
+
 
 class ImageButton(ButtonBehavior, Image):
     pass
@@ -110,10 +115,26 @@ class WardrobeDetailsScreen(Screen):
         clothes = get_clothes_in_wardrobe(username, wardrobe_name)
         for clothing_id, clothing in clothes:
             clothing_info = get_clothing_info(clothing_id)
-            image_path = clothing_info['image'] if clothing_info and clothing_info['image'] else 'default_image_path'
-            img = ImageButton(source=image_path, size_hint_y=None, height=200)
-            img.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
-            self.ids.clothing_grid.add_widget(img)
+            if clothing_info:
+                image_path = clothing_info['image']
+                if not image_path or not os.path.exists(image_path):
+                    image_path = self.get_default_image(clothing_info['type'])
+                img = ImageButton(source=image_path, size_hint_y=None, height=200)
+                img.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
+                self.ids.clothing_grid.add_widget(img)
+
+    def get_default_image(self, clothing_type):
+        default_images = {
+            'Body': f'{ICONS_IMAGES_DIR}/boton_body.png',
+            'Buzos': f'{ICONS_IMAGES_DIR}/boton_buzos.png',
+            'Cubrepañales': f'{ICONS_IMAGES_DIR}/boton_cubrepanales.png',
+            'Vestidos': f'{ICONS_IMAGES_DIR}/boton_faldon.png',
+            'Jesusitos': f'{ICONS_IMAGES_DIR}/boton_jesusitos.png',
+            'Peleles': f'{ICONS_IMAGES_DIR}/boton_pelele.png',
+            'Petos': f'{ICONS_IMAGES_DIR}/boton_petos.png',
+            'Ranitas': f'{ICONS_IMAGES_DIR}/boton_ranitas.png'
+        }
+        return default_images.get(clothing_type, 'path/to/default_image.png')
 
     def edit_clothing(self, clothing_id):
         edit_screen = self.manager.get_screen('edit_clothing')
@@ -174,7 +195,9 @@ class HomeScreen(Screen):
                    (clothing_info['waist_circumference'] and clothing_info['waist_circumference'] < baby_waist) or \
                    (clothing_info['torso_length'] and clothing_info['torso_length'] < baby_torso) or \
                    (clothing_info['leg_length'] and clothing_info['leg_length'] < baby_leg):
-                    image_path = clothing_info['image'] if clothing_info['image'] else 'default_image_path'
+                    image_path = clothing_info['image']
+                    if not image_path or not os.path.exists(image_path):
+                        image_path = self.get_default_image(clothing_info['type'])
                     img = ImageButton(source=image_path, size_hint=(None, None), size=(150, 150))
                     img.bind(on_press=lambda x, cid=clothing_id[0]: self.edit_clothing(cid))
                     self.ids.unfit_clothes_grid.add_widget(img)
@@ -182,11 +205,28 @@ class HomeScreen(Screen):
         
         self.ids.unfit_clothes_grid.width = total_clothes * 160
 
+    def get_default_image(self, clothing_type):
+        default_images = {
+            'Body': f'{ICONS_IMAGES_DIR}/boton_body.png',
+            'Buzos': f'{ICONS_IMAGES_DIR}/boton_buzos.png',
+            'Cubrepañales': f'{ICONS_IMAGES_DIR}/boton_cubrepanales.png',
+            'Vestidos': f'{ICONS_IMAGES_DIR}/boton_faldon.png',
+            'Jesusitos': f'{ICONS_IMAGES_DIR}/boton_jesusitos.png',
+            'Peleles': f'{ICONS_IMAGES_DIR}/boton_pelele.png',
+            'Petos': f'{ICONS_IMAGES_DIR}/boton_petos.png',
+            'Ranitas': f'{ICONS_IMAGES_DIR}/boton_ranitas.png'
+        }
+        return default_images.get(clothing_type, 'path/to/default_image.png')
+
     def edit_clothing(self, clothing_id):
         edit_screen = self.manager.get_screen('edit_clothing')
         edit_screen.clothing_id = clothing_id
         self.manager.previous_screen = 'home'
         self.manager.current = 'edit_clothing'
+
+    def check_reminders(self):
+        username = self.manager.get_screen('login').ids.username.text
+        check_for_reminders(username)
 
 class CategoryDetailsScreen(Screen):
     def on_pre_enter(self, *args):
@@ -200,12 +240,23 @@ class CategoryDetailsScreen(Screen):
         for clothing_id, clothing in clothes:
             clothing_info = get_clothing_info(clothing_id)
             image_path = clothing_info['image'] if clothing_info else None
-            if image_path and os.path.exists(image_path):
-                img = ImageButton(source=image_path, size_hint_y=None, height=100, on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
-            else:
-                img = Button(text=clothing, size_hint_y=None, height=100)
-                img.bind(on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
+            if not image_path or not os.path.exists(image_path):
+                image_path = self.get_default_image(clothing_info['type'])
+            img = ImageButton(source=image_path, size_hint_y=None, height=100, on_press=lambda x, cid=clothing_id: self.edit_clothing(cid))
             self.ids.category_grid.add_widget(img)
+
+    def get_default_image(self, clothing_type):
+        default_images = {
+            'Body': f'{ICONS_IMAGES_DIR}/boton_body.png',
+            'Buzos': f'{ICONS_IMAGES_DIR}/boton_buzos.png',
+            'Cubrepañales': f'{ICONS_IMAGES_DIR}/boton_cubrepanales.png',
+            'Vestidos': f'{ICONS_IMAGES_DIR}/boton_faldon.png',
+            'Jesusitos': f'{ICONS_IMAGES_DIR}/boton_jesusitos.png',
+            'Peleles': f'{ICONS_IMAGES_DIR}/boton_pelele.png',
+            'Petos': f'{ICONS_IMAGES_DIR}/boton_petos.png',
+            'Ranitas': f'{ICONS_IMAGES_DIR}/boton_ranitas.png'
+        }
+        return default_images.get(clothing_type, 'path/to/default_image.png')
 
     def update_category_title(self, category):
         self.ids.category_title.text = f'{category}'
@@ -634,6 +685,7 @@ class WindowManager(ScreenManager):
     def login(self, username, password):
         if validate_user(username, password):
             self.current = 'home'
+            self.check_reminders(username)
         else:
             popup = Popup(title='Error de Inicio de Sesión',
                           content=Label(text='Nombre de usuario o contraseña incorrectos'),
@@ -656,6 +708,9 @@ class WindowManager(ScreenManager):
 
     def logout(self):
         App.get_running_app().stop()
+
+    def check_reminders(self, username):
+        check_for_reminders(username)
 
 class BabyWardrobeApp(App):
     def build(self):
