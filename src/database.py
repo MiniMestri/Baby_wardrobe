@@ -75,8 +75,6 @@ def create_tables():
     connection.commit()
     connection.close()
 
-
-
 def add_user(username, password):
     connection = create_connection()
     cursor = connection.cursor()
