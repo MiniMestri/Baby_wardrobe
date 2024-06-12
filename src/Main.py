@@ -23,7 +23,7 @@ from datetime import datetime, timedelta
 
 
 
-from database import check_for_reminders,get_baby_measurements,get_existing_names,get_all_clothes,update_clothing_details,get_clothes_by_category,get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
+from database import create_connection,check_for_reminders,get_baby_measurements,get_existing_names,get_all_clothes,update_clothing_details,get_clothes_by_category,get_clothing_info,delete_clothing_from_wardrobe,add_user, validate_user, change_password,save_measurements,get_existing_names,save_measurements_clothing,get_existing_names, add_wardrobe, get_wardrobes,delete_wardrobe,get_wardrobe_count,get_latest_baby_measurements,get_clothing_count_per_wardrobe,get_clothes_in_wardrobe
 import sqlite3
 
 
@@ -274,8 +274,54 @@ class EditClothingScreen(Screen):
     temp_image_path = None
 
     def on_pre_enter(self):
+        # Cargar la lista de armarios en el spinner
+        username = self.manager.get_screen('login').ids.username.text
+        self.ids.destination_wardrobe_spinner.values = get_wardrobes(username)
         self.clear_measurement_widgets()
         self.load_clothing_details()
+
+    def move_clothing_to_wardrobe(self, new_wardrobe):
+        if not new_wardrobe or new_wardrobe == 'Seleccionar armario de destino':
+            popup = Popup(title='Error',
+                          content=Label(text='Por favor, seleccione un armario de destino'),
+                          size_hint=(None, None), size=(300, 200))
+            popup.open()
+            return
+
+        try:
+            # Obtener el nombre de usuario
+            username = self.manager.get_screen('login').ids.username.text
+
+            # Actualizar la prenda en la base de datos
+            connection = create_connection()
+            cursor = connection.cursor()
+            cursor.execute('''
+            UPDATE medidas_prenda
+            SET nombre_armario = ?
+            WHERE id = ? AND nombre = ?
+            ''', (new_wardrobe, self.clothing_id, username))
+            connection.commit()
+            connection.close()
+
+            popup = Popup(title='Éxito',
+                          content=Label(text='Prenda movida correctamente'),
+                          size_hint=(None, None), size=(300, 200))
+            popup.open()
+        except sqlite3.Error as e:
+            popup = Popup(title='Error',
+                          content=Label(text=f'Error al mover la prenda: {e}'),
+                          size_hint=(None, None), size=(300, 200))
+            popup.open()
+
+    def clear_measurement_widgets(self):
+        self.ids.edit_height.text = ''
+        self.ids.edit_chest_circumference.text = ''
+        self.ids.edit_waist_circumference.text = ''
+        self.ids.edit_torso_length.text = ''
+        self.ids.edit_leg_length.text = ''
+        self.ids.edit_image.source = ''
+        self.ids.edit_custom_name.text = ''
+        self.ids.edit_type.text = 'Seleccionar prenda'
 
     def load_clothing_details(self):
         if self.clothing_id is not None:
