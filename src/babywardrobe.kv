@@ -465,6 +465,25 @@
                         disabled: True
 
                 BoxLayout:
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: 10
+
+                    # Spinner para seleccionar el armario de destino
+                    Spinner:
+                        id: destination_wardrobe_spinner
+                        text: 'Seleccionar armario'
+                        size_hint_y: None
+                        height: '40dp'
+                    
+                    Button:
+                        text: 'Mover armario'
+                        size_hint_y: None
+                        height: '40dp'
+                        on_press: root.move_clothing_to_wardrobe(destination_wardrobe_spinner.text)
+
+                BoxLayout:
                     size_hint_y: None
                     height: '50dp'
                     spacing: 10
