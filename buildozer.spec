@@ -27,7 +27,9 @@ orientation = portrait
 fullscreen = 1
 
 # (list) Permissions
-android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE
+# Permissions
+android.permissions = READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
+
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy

@@ -1,3 +1,4 @@
+# Importamos las librerías necesarias
 import sqlite3
 import sys
 import os
@@ -5,37 +6,45 @@ from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from datetime import datetime, timedelta
 
-
+# Configuración del directorio base para la base de datos
 if getattr(sys, 'frozen', False):
+    # Si la aplicación está empaquetada, usamos el directorio temporal
     base_dir = os.path.join(sys._MEIPASS, 'bbdd')
 else:
+    # Si no está empaquetada, usamos el directorio actual del script
     base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bbdd')
 
+# Creamos el directorio base si no existe
 if not os.path.exists(base_dir):
     os.makedirs(base_dir)
 
+# Ruta completa del archivo de la base de datos
 ruta_bbdd = os.path.join(base_dir, 'login.sqlite3')
 
+print("Esta es una bbdd: " + ruta_bbdd)
 
-print("eta es una bbdd"+ruta_bbdd)
-
+# Función para crear la conexión a la base de datos
 def create_connection():
     try:
+        # Intentamos conectar a la base de datos
         return sqlite3.connect(ruta_bbdd)
     except sqlite3.Error as e:
+        # Si hay un error, lo imprimimos y devolvemos None
         print(f"Error al conectar a la base de datos: {e}")
         return None
 
-
+# Función para crear las tablas en la base de datos
 def create_tables():
     connection = create_connection()
     cursor = connection.cursor()
+    # Crear tabla de usuarios
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS login (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL
     )''')
+    # Crear tabla de medidas del bebé
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS medidas_bebe (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -49,6 +58,7 @@ def create_tables():
         fecha_medicion DATE,
         FOREIGN KEY(nombre_usuario) REFERENCES login(username)
     )''')
+    # Crear tabla de medidas de las prendas
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS medidas_prenda (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,6 +75,7 @@ def create_tables():
         FOREIGN KEY(nombre) REFERENCES login(username),
         FOREIGN KEY(nombre_armario) REFERENCES armarios(nombre_armario)
     )''')
+    # Crear tabla de armarios
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS armarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,6 +86,7 @@ def create_tables():
     connection.commit()
     connection.close()
 
+# Función para agregar un nuevo usuario
 def add_user(username, password):
     connection = create_connection()
     cursor = connection.cursor()
@@ -82,6 +94,7 @@ def add_user(username, password):
     connection.commit()
     connection.close()
 
+# Función para validar un usuario
 def validate_user(username, password):
     connection = create_connection()
     cursor = connection.cursor()
@@ -90,6 +103,7 @@ def validate_user(username, password):
     connection.close()
     return user
 
+# Función para cambiar la contraseña de un usuario
 def change_password(username, old_password, new_password):
     connection = create_connection()
     cursor = connection.cursor()
@@ -102,7 +116,7 @@ def change_password(username, old_password, new_password):
     connection.close()
     return False
 
-
+# Función para guardar las medidas del bebé
 def save_measurements(username, name, height, chest_circumference, waist_circumference, torso_length, leg_length):
     connection = create_connection()
     cursor = connection.cursor()
@@ -118,6 +132,7 @@ def save_measurements(username, name, height, chest_circumference, waist_circumf
     connection.commit()
     connection.close()
 
+# Función para guardar las medidas de una prenda
 def save_measurements_clothing(username, clothing_type, wardrobe_name, custom_name, image, height, chest_circumference, waist_circumference, torso_length, leg_length):
     try:
         connection = create_connection()
@@ -131,7 +146,7 @@ def save_measurements_clothing(username, clothing_type, wardrobe_name, custom_na
     finally:
         connection.close()
 
-
+# Función para agregar un nuevo armario
 def add_wardrobe(username, wardrobe_name):
     connection = create_connection()
     cursor = connection.cursor()
@@ -139,6 +154,7 @@ def add_wardrobe(username, wardrobe_name):
     connection.commit()
     connection.close()
 
+# Función para obtener todos los armarios de un usuario
 def get_wardrobes(username):
     connection = create_connection()
     cursor = connection.cursor()
@@ -147,6 +163,7 @@ def get_wardrobes(username):
     connection.close()
     return wardrobes
 
+# Función para eliminar un armario
 def delete_wardrobe(username, wardrobe_name):
     connection = create_connection()
     cursor = connection.cursor()
@@ -157,6 +174,7 @@ def delete_wardrobe(username, wardrobe_name):
     connection.commit()
     connection.close()
 
+# Función para obtener el conteo de armarios de un usuario
 def get_wardrobe_count(username):
     connection = create_connection()
     cursor = connection.cursor()
@@ -165,6 +183,7 @@ def get_wardrobe_count(username):
     connection.close()
     return count
 
+# Función para obtener el conteo de prendas por armario de un usuario
 def get_clothing_count_per_wardrobe(username):
     connection = create_connection()
     cursor = connection.cursor()
@@ -173,6 +192,7 @@ def get_clothing_count_per_wardrobe(username):
     connection.close()
     return data
 
+# Función para obtener las últimas medidas del bebé
 def get_latest_baby_measurements(username):
     connection = create_connection()
     cursor = connection.cursor()
@@ -187,6 +207,7 @@ def get_latest_baby_measurements(username):
     connection.close()
     return measurements
 
+# Función para obtener las prendas en un armario
 def get_clothes_in_wardrobe(username, wardrobe_name):
     connection = create_connection()
     cursor = connection.cursor()
@@ -195,7 +216,7 @@ def get_clothes_in_wardrobe(username, wardrobe_name):
     connection.close()
     return clothes
 
-
+# Función para obtener la información de una prenda
 def get_clothing_info(clothing_id):
     connection = create_connection()
     cursor = connection.cursor()
@@ -219,7 +240,7 @@ def get_clothing_info(clothing_id):
         }
     return None
 
-
+# Función para eliminar una prenda de un armario
 def delete_clothing_from_wardrobe(clothing_id):
     connection = create_connection()
     cursor = connection.cursor()
@@ -227,6 +248,7 @@ def delete_clothing_from_wardrobe(clothing_id):
     connection.commit()
     connection.close()
 
+# Función para obtener las prendas por categoría
 def get_clothes_by_category(username, category):
     connection = create_connection()
     cursor = connection.cursor()
@@ -235,6 +257,7 @@ def get_clothes_by_category(username, category):
     connection.close()
     return clothes
 
+# Función para actualizar los detalles de una prenda
 def update_clothing_details(clothing_id, type, custom_name, image, height, chest_circumference, waist_circumference, torso_length, leg_length):
     connection = create_connection()
     cursor = connection.cursor()
@@ -246,6 +269,7 @@ def update_clothing_details(clothing_id, type, custom_name, image, height, chest
     connection.commit()
     connection.close()
 
+# Función para obtener todas las prendas de un usuario
 def get_all_clothes(username):
     connection = create_connection()
     cursor = connection.cursor()
@@ -254,6 +278,7 @@ def get_all_clothes(username):
     connection.close()
     return clothes
 
+# Función para obtener los nombres existentes de los bebés
 def get_existing_names(username):
     connection = create_connection()
     cursor = connection.cursor()
@@ -262,7 +287,7 @@ def get_existing_names(username):
     connection.close()
     return names
 
-
+# Función para obtener las medidas de un bebé específico
 def get_baby_measurements(username, baby_name):
     connection = create_connection()
     cursor = connection.cursor()
@@ -277,6 +302,7 @@ def get_baby_measurements(username, baby_name):
     connection.close()
     return measurements
 
+# Función para verificar recordatorios de actualización de medidas
 def check_for_reminders(username):
     connection = create_connection()
     cursor = connection.cursor()
@@ -306,7 +332,5 @@ def check_for_reminders(username):
                       size_hint=(None, None), size=(400, 400))
         popup.open()
 
-
-
-
+# Crear las tablas al iniciar el script
 create_tables()

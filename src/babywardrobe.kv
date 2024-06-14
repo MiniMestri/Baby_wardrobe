@@ -1,89 +1,113 @@
-
+# Definición de la pantalla de inicio de sesión
 <LoginScreen>:
+    # Disposición principal con orientación vertical
     BoxLayout:
         orientation: 'vertical'
         padding: [20, 20, 20, 20]
         spacing: 20
+        
+        # Configuración del fondo de la pantalla
         canvas.before:
             Color:
-                rgba:  0.784, 0.902, 0.980, 1 
+                rgba:  0.784, 0.902, 0.980, 1  # Color de fondo azul claro
             Rectangle:
                 pos: self.pos
                 size: self.size
 
+        # Etiqueta de título
         Label:
             text: '[b]Inicio de Sesión[/b]'
             markup: True
             color: 0, 0, 0, 1
             font_size: 40
 
+        # Campo de entrada para el nombre de usuario
         TextInput:
             id: username
             hint_text: 'Nombre de usuario'
             multiline: False
 
+        # Campo de entrada para la contraseña
         TextInput:
             id: password
             hint_text: 'Contraseña'
             password: True
             multiline: False
 
+        # Botón para iniciar sesión
         Button:
             text: 'Iniciar Sesión'
             on_press: root.manager.login(username.text, password.text)
 
+        # Botón para registrarse
         Button:
             text: 'Registrarse'
             on_press: root.manager.current = 'register'
 
+# Definición de la pantalla de registro
 <RegisterScreen>:
+    # Disposición principal con orientación vertical
     BoxLayout:
         orientation: 'vertical'
         padding: [20, 20, 20, 20]
         spacing: 20
+        
+        # Configuración del fondo de la pantalla
         canvas.before:
             Color:
-                rgba:  0.784, 0.902, 0.980, 1 
+                rgba:  0.784, 0.902, 0.980, 1  # Color de fondo azul claro
             Rectangle:
                 pos: self.pos
                 size: self.size
+        
+        # Etiqueta de título
         Label:
             text: '[b]Registro[/b]'
             markup: True
             color: 0, 0, 0, 1
             font_size: 40
 
+        # Campo de entrada para el nuevo nombre de usuario
         TextInput:
             id: new_username
             hint_text: 'Nombre de usuario'
             multiline: False
 
+        # Campo de entrada para la nueva contraseña
         TextInput:
             id: new_password
             hint_text: 'Contraseña'
             password: True
             multiline: False
 
+        # Botón para registrar un nuevo usuario
         Button:
             text: 'Registrar'
             on_press: root.manager.register(new_username.text, new_password.text)
 
+        # Botón para volver a la pantalla de inicio de sesión
         Button:
             text: 'Volver al Inicio de Sesión'
             on_press: root.manager.current = 'login'
 
+# Definición del comportamiento del botón de imagen
 <ImageButton@ButtonBehavior+Image>:
 
+# Definición de la pantalla principal
 <HomeScreen>:
+    # Disposición principal con orientación vertical
     BoxLayout:
         orientation: 'vertical'
+        
+        # Configuración del fondo de la pantalla
         canvas.before:
             Color:
-                rgba: 1, 1, 1, 1  # Blanco
+                rgba: 1, 1, 1, 1  # Color de fondo blanco
             Rectangle:
                 pos: self.pos
                 size: self.size
 
+        # Disposición para seleccionar un bebé
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
@@ -99,6 +123,7 @@
                 values: ['Seleccionar bebé']  # Esto se actualizará dinámicamente
                 on_text: root.update_baby_selection(self.text)
 
+        # Etiqueta de título para prendas pequeñas
         Label:
             text: '[b]Prendas Pequeñas[/b]'
             markup: True
@@ -108,11 +133,12 @@
             height: '50dp'
             canvas.before:
                 Color:
-                    rgba: 1, 0, 0, 1  # Rojo
+                    rgba: 1, 0, 0, 1  # Color de fondo rojo
                 Rectangle:
                     pos: self.pos
                     size: self.size
 
+        # Vista de desplazamiento para mostrar prendas pequeñas
         ScrollView:
             size_hint_y: None
             height: 150
@@ -131,6 +157,7 @@
                 padding: [10, 10, 10, 10]
                 width: self.minimum_width
 
+        # Disposición de cuadrícula para mostrar categorías de prendas
         GridLayout:
             cols: 4
             rows: 4
@@ -138,11 +165,12 @@
             padding: [10, 10, 10, 10]
             canvas.before:
                 Color:
-                    rgba: 160/255, 205/255, 240/255, 1  # Blanco
+                    rgba: 160/255, 205/255, 240/255, 1  # Color de fondo blanco
                 Rectangle:
                     pos: self.pos
                     size: self.size
 
+            # Botones de imagen para cada categoría de prenda
             ImageButton:
                 background_color: (200/255, 230/255, 250/255, 1)
                 source: app.get_image_path('boton_body.png')
@@ -160,6 +188,7 @@
                 source: app.get_image_path('boton_faldon.png')
                 on_press: root.show_category('Vestidos')
 
+            # Etiquetas para las categorías de prenda
             Label:
                 text: '[b]BODY[/b]'
                 markup: True
@@ -201,6 +230,7 @@
                 text: '[b]RANITAS[/b]'
                 markup: True
 
+        # Disposición de cuadrícula para navegación inferior
         GridLayout:
             cols: 4
             rows: 1
@@ -208,13 +238,14 @@
             height: dp(50)
             padding: [10, 10, 10, 10]
             spacing: [10, 10]
-
             canvas.before:
                 Color:
-                    rgba: 1, 1, 1, 1  # Blanco
+                    rgba: 1, 1, 1, 1  # Color de fondo blanco
                 Rectangle:
                     pos: self.pos
                     size: self.size
+
+            # Botones de navegación inferior
             ImageButton:
                 source: app.get_image_path('casa.png')
                 on_press: root.manager.current = 'home'
@@ -228,33 +259,32 @@
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
 
-
-
-
-
-
-
+# Definición de la pantalla de detalles de categoría
 <CategoryDetailsScreen>:
+    # Disposición principal con orientación vertical
     BoxLayout:
         orientation: 'vertical'
         canvas.before:
             Color:
-                rgba:  0.784, 0.902, 0.980, 1 
+                rgba:  0.784, 0.902, 0.980, 1  # Color de fondo azul claro
             Rectangle:
                 pos: self.pos
                 size: self.size
 
+        # Disposición vertical para los detalles de la categoría
         BoxLayout:
             orientation: 'vertical'
             padding: [20, 20, 20, 20]
             spacing: 10
 
+            # Etiqueta del título de la categoría
             Label:
                 id: category_title
                 font_size: '48sp'
                 text: 'Categoría de ropa'
                 color: 0, 0, 0, 1
 
+            # Vista de desplazamiento para mostrar los detalles de la categoría
             ScrollView:
                 GridLayout:
                     id: category_grid
@@ -266,6 +296,7 @@
                     spacing: [5, 5]
                     padding: [10, 10, 10, 10]
 
+        # Disposición de cuadrícula para navegación inferior
         GridLayout:
             cols: 4
             rows: 1
@@ -273,13 +304,14 @@
             height: dp(50)
             padding: [10, 10, 10, 10]
             spacing: [10, 10]
-
             canvas.before:
                 Color:
-                    rgba: 1, 1, 1, 1  # Blanco
+                    rgba: 1, 1, 1, 1  # Color de fondo blanco
                 Rectangle:
                     pos: self.pos
                     size: self.size
+            
+            # Botones de navegación inferior
             ImageButton:
                 source: app.get_image_path('casa.png')
                 on_press: root.manager.current = 'home'
@@ -293,25 +325,25 @@
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
 
-
-
-
-
+# Definición de la pantalla de gestión de armarios
 <WardrobeScreen>:
+    # Disposición principal con orientación vertical
     BoxLayout:
         orientation: 'vertical'
         canvas.before:
             Color:
-                rgba:  0.784, 0.902, 0.980, 1  # Fondo
+                rgba:  0.784, 0.902, 0.980, 1  # Color de fondo azul claro
             Rectangle:
                 pos: self.pos
                 size: self.size
 
+        # Disposición vertical para la gestión de armarios
         BoxLayout:
             orientation: 'vertical'
             padding: [20, 20, 20, 20]
             spacing: 10
 
+            # Etiqueta de título para la gestión de armarios
             Label:
                 text: '[b]Gestión de Armarios[/b]'
                 markup: True
@@ -320,6 +352,7 @@
                 size_hint_y: None
                 height: '50dp'
 
+            # Vista de desplazamiento para mostrar los armarios
             ScrollView:
                 GridLayout:
                     id: wardrobe_grid
@@ -328,10 +361,12 @@
                     size_hint_y: None
                     height: self.minimum_height
 
-        Widget:  # Este Widget actúa como un separador para evitar que el GridLayout herede el padding
+        # Widget como separador para evitar que el GridLayout herede el padding
+        Widget:
             size_hint_y: None
             height: 0
 
+        # Disposición de cuadrícula para navegación inferior
         GridLayout:
             cols: 4
             rows: 1
@@ -339,13 +374,14 @@
             height: dp(50)
             padding: [10, 10, 10, 10]
             spacing: [10, 10]
-
             canvas.before:
                 Color:
-                    rgba: 1, 1, 1, 1  # Blanco
+                    rgba: 1, 1, 1, 1  # Color de fondo blanco
                 Rectangle:
                     pos: self.pos
                     size: self.size
+
+            # Botones de navegación inferior
             ImageButton:
                 source: app.get_image_path('casa.png')
                 on_press: root.manager.current = 'home'
@@ -359,16 +395,19 @@
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
 
+# Definición de la pantalla de edición de prendas
 <EditClothingScreen>:
+    # Disposición principal con orientación vertical
     BoxLayout:
         orientation: 'vertical'
         canvas.before:
             Color:
-                rgba: 0.784, 0.902, 0.980, 1  # Fondo
+                rgba: 0.784, 0.902, 0.980, 1  # Color de fondo azul claro
             Rectangle:
                 pos: self.pos
                 size: self.size
 
+        # Etiqueta de título para editar prendas
         Label:
             text: '[b]Editar Prenda[/b]'
             markup: True
@@ -377,6 +416,7 @@
             size_hint_y: None
             height: '50dp'
 
+        # Vista de desplazamiento para editar los detalles de la prenda
         ScrollView:
             BoxLayout:
                 orientation: 'vertical'
@@ -385,6 +425,7 @@
                 padding: [20, 20, 20, 20]
                 spacing: 10
 
+                # Campo de entrada para el tipo de prenda
                 TextInput:
                     id: edit_type
                     hint_text: 'Tipo de prenda'
@@ -393,6 +434,7 @@
                     multiline: False
                     disabled: True
 
+                # Campo de entrada para el nombre personalizado de la prenda
                 TextInput:
                     id: edit_custom_name
                     hint_text: 'Nombre Personalizado'
@@ -400,6 +442,7 @@
                     height: '40dp'
                     multiline: False
 
+                # Disposición vertical para imagen y botón de subida de imagen
                 BoxLayout:
                     orientation: 'vertical'
                     size_hint_y: None
@@ -409,7 +452,7 @@
                     Image:
                         id: edit_image
                         size_hint: (None, None)
-                        size: (335, 250)
+                        size: (430, 250)
                         allow_stretch: True
                     Button:
                         text: 'Subir Imagen'
@@ -417,6 +460,7 @@
                         height: '40dp'
                         on_press: root.upload_image()
 
+                # Disposición vertical para los campos de medidas
                 BoxLayout:
                     id: edit_measurement_inputs
                     orientation: 'vertical'
@@ -424,6 +468,7 @@
                     size_hint_y: None
                     height: self.minimum_height
 
+                    # Campos de entrada para las diferentes medidas de la prenda
                     TextInput:
                         id: edit_height
                         hint_text: 'Altura (cm)'
@@ -464,13 +509,13 @@
                         height: '40dp'
                         disabled: True
 
+                # Disposición vertical para seleccionar el armario de destino
                 BoxLayout:
                     orientation: 'vertical'
                     size_hint_y: None
                     height: self.minimum_height
                     spacing: 10
 
-                    # Spinner para seleccionar el armario de destino
                     Spinner:
                         id: destination_wardrobe_spinner
                         text: 'Seleccionar armario'
@@ -483,6 +528,7 @@
                         height: '40dp'
                         on_press: root.move_clothing_to_wardrobe(destination_wardrobe_spinner.text)
 
+                # Botones para guardar, cancelar y eliminar la prenda
                 BoxLayout:
                     size_hint_y: None
                     height: '50dp'
@@ -499,20 +545,23 @@
                     text: 'Eliminar'
                     size_hint_y: None
                     height: '50dp'
-                    background_color: (1, 0, 0, 1)  # Rojo
-                    color: (1, 1, 1, 1)  # Texto blanco
+                    background_color: (1, 0, 0, 1)  # Color de fondo rojo
+                    color: (1, 1, 1, 1)  # Color de texto blanco
                     on_press: root.delete_clothing()
 
-
+# Definición de la pantalla de detalles del armario
 <WardrobeDetailsScreen>:
+    # Disposición principal con orientación vertical
     BoxLayout:
         orientation: 'vertical'
         canvas.before:
             Color:
-                rgba:  0.784, 0.902, 0.980, 1  # Fondo
+                rgba:  0.784, 0.902, 0.980, 1  # Color de fondo azul claro
             Rectangle:
                 pos: self.pos
                 size: self.size
+
+        # Disposición vertical para los detalles del armario
         BoxLayout:
             orientation: 'vertical'
             padding: [20, 20, 20, 20]
@@ -524,6 +573,7 @@
                 size_hint_y: None
                 height: '50dp'
 
+            # Vista de desplazamiento para mostrar las prendas del armario
             ScrollView:
                 GridLayout:
                     id: clothing_grid
@@ -532,22 +582,26 @@
                     size_hint_y: None
                     height: self.minimum_height
 
+        # Botón para volver a la pantalla de armarios
         Button:
             text: 'Volver'
             size_hint_y: None
             height: '50dp'
             on_press: root.manager.current = 'wardrobe'
 
+# Definición de la pantalla de gestión de medidas
 <MesureScreen>:
+    # Disposición principal con orientación vertical
     BoxLayout:
         orientation: 'vertical'
         canvas.before:
             Color:
-                rgba: 0.784, 0.902, 0.980, 1  # Fondo
+                rgba: 0.784, 0.902, 0.980, 1  # Color de fondo azul claro
             Rectangle:
                 pos: self.pos
                 size: self.size
 
+        # Etiqueta de título para la gestión de medidas
         Label:
             text: '[b]Gestión de Medidas[/b]'
             markup: True
@@ -556,6 +610,7 @@
             size_hint_y: None
             height: '50dp'
 
+        # Vista de desplazamiento para la gestión de medidas
         ScrollView:
             BoxLayout:
                 orientation: 'vertical'
@@ -564,6 +619,7 @@
                 padding: [20, 20, 20, 20]
                 spacing: 10
 
+                # Spinner para seleccionar la prenda
                 Spinner:
                     id: spinner_clothing
                     text: 'Seleccionar prenda'
@@ -572,12 +628,14 @@
                     size_hint_y: None
                     height: '50dp'
 
+                # Spinner para seleccionar el armario
                 Spinner:
                     id: wardrobe_spinner
                     text: 'Seleccione un armario'
                     size_hint_y: None
                     height: '50dp'
 
+                # Campo de entrada para el nombre personalizado de la prenda
                 TextInput:
                     id: custom_name
                     hint_text: 'Nombre Personalizado'
@@ -585,6 +643,7 @@
                     size_hint_y: None
                     height: '40dp'
 
+                # Disposición vertical para imagen y botón de subida de imagen
                 BoxLayout:
                     orientation: 'vertical'
                     size_hint_y: None
@@ -594,7 +653,7 @@
                     Image:
                         id: image
                         size_hint: (None, None)
-                        size: (335, 250)
+                        size: (430, 240)
                         allow_stretch: True
                     Button:
                         text: 'Subir Imagen'
@@ -609,6 +668,7 @@
                             FileChooserListView:
                                 on_selection: root.on_image_selected(self.selection)
 
+                # Disposición vertical para los campos de medidas
                 BoxLayout:
                     id: measurement_inputs
                     orientation: 'vertical'
@@ -616,6 +676,7 @@
                     size_hint_y: None
                     height: self.minimum_height
 
+                    # Campos de entrada para las diferentes medidas
                     TextInput:
                         id: height
                         hint_text: 'Altura (cm)'
@@ -656,12 +717,14 @@
                         height: '40dp'
                         disabled: True
 
+                # Botón para guardar las medidas
                 Button:
                     text: 'Guardar Medidas'
                     size_hint_y: None
                     height: '50dp'
                     on_press: root.save_measurements(spinner_clothing.text, custom_name.text, image.source, height.text, chest_circumference.text, waist_circumference.text, torso_length.text, leg_length.text)
 
+        # Disposición de cuadrícula para navegación inferior
         GridLayout:
             cols: 4
             rows: 1
@@ -669,13 +732,14 @@
             height: dp(50)
             padding: [10, 10, 10, 10]
             spacing: [10, 10]
-
             canvas.before:
                 Color:
-                    rgba: 1, 1, 1, 1  # Blanco
+                    rgba: 1, 1, 1, 1  # Color de fondo blanco
                 Rectangle:
                     pos: self.pos
                     size: self.size
+
+            # Botones de navegación inferior
             ImageButton:
                 source: app.get_image_path('casa.png')
                 on_press: root.manager.current = 'home'
@@ -689,7 +753,7 @@
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
 
-
+# Definición de la plantilla de botón
 <Button@Button>:
     font_size: '24sp'
     markup: True
@@ -697,43 +761,51 @@
     background_normal: ''  # Eliminar la imagen de fondo predeterminada
     background_color: 1, 1, 1, 1  # Color de fondo por defecto (blanco)
 
+# Definición de la pantalla de cuenta
 <AccountScreen>:
+    # Disposición principal con orientación vertical
     BoxLayout:
         orientation: 'vertical'
         spacing: 20
         canvas.before:
             Color:
-                rgba:  0.784, 0.902, 0.980, 1  # Blanco
+                rgba:  0.784, 0.902, 0.980, 1  # Color de fondo azul claro
             Rectangle:
                 pos: self.pos
                 size: self.size
         
+        # Disposición vertical para las opciones de la cuenta
         BoxLayout:
             orientation: 'vertical'
             padding: [20, 20, 20, 0]
             spacing: 20
 
+            # Botón para mostrar la información de la cuenta
             Button:
                 text: '[b]Mi cuenta[/b]'
                 background_color: (255/255, 255/255, 255/255, 1)
                 on_press: root.display_account_info(root.manager.get_screen('login').ids.username.text)
 
+            # Botón para mostrar la información del bebé
             Button:
                 text: '[b]Mi bebe[/b]'
                 background_color: (255/255, 255/255, 255/255, 1)
                 on_press: root.manager.current = 'baby_measurements'
 
+            # Botón para cambiar la contraseña
             Button:
                 text: '[b]Cambiar contraseña[/b]'
                 background_color: (255/255, 255/255, 255/255, 1)
                 on_press: root.manager.current = 'change_password'
 
+            # Botón para cerrar sesión
             Button:
                 text: '[b]Cerrar sesion[/b]'
                 color: 1, 1, 1, 1
-                background_color: (255/255, 0/255, 0/255, 1)
+                background_color: (255/255, 0/255, 0/255, 1)  # Color de fondo rojo
                 on_press: app.get_running_app().stop()  # Llamar al método stop() para cerrar la app
 
+        # Disposición de cuadrícula para navegación inferior
         GridLayout:
             cols: 4
             rows: 1
@@ -741,13 +813,14 @@
             height: dp(50)
             padding: [10, 10, 10, 10]
             spacing: [10, 10]
-
             canvas.before:
                 Color:
-                    rgba: 1, 1, 1, 1  # Blanco
+                    rgba: 1, 1, 1, 1  # Color de fondo blanco
                 Rectangle:
                     pos: self.pos
                     size: self.size
+
+            # Botones de navegación inferior
             ImageButton:
                 source: app.get_image_path('casa.png')
                 on_press: root.manager.current = 'home'
@@ -760,111 +833,133 @@
             ImageButton:
                 source: app.get_image_path('usuario.png')
                 on_press: root.manager.current = 'account'
+
+# Definición de la pantalla para cambiar contraseña
 <ChangePasswordScreen>:
+    # Disposición principal con orientación vertical
     BoxLayout:
         orientation: 'vertical'
         padding: [20, 20, 20, 20]
         spacing:20
 
-
+        # Configuración del fondo de la pantalla
         canvas.before:
             Color:
-                rgba:  0.784, 0.902, 0.980, 1  # Blanco
+                rgba:  0.784, 0.902, 0.980, 1  # Color de fondo azul claro
             Rectangle:
                 pos: self.pos
                 size: self.size
 
+        # Etiqueta de título para cambiar contraseña
         Label:
             text: 'Cambiar Contraseña'
             font_size: '32sp'
             color: 0, 0, 0, 1
 
+        # Campo de entrada para el nombre de usuario
         TextInput:
             id: username
             hint_text: 'Nombre de usuario'
             multiline: False
 
+        # Campo de entrada para la contraseña antigua
         TextInput:
             id: old_password
             hint_text: 'Contraseña antigua'
             password: True
             multiline: False
 
+        # Campo de entrada para la nueva contraseña
         TextInput:
             id: new_password
             hint_text: 'Nueva contraseña'
             password: True
             multiline: False
 
+        # Botón para cambiar la contraseña
         Button:
             text: 'Cambiar Contraseña'
             on_press: root.change_password(username.text, old_password.text, new_password.text)
 
+        # Botón para volver a la pantalla de cuenta
         Button:
             text: 'Volver'
             on_press: root.manager.current = 'account'
 
+# Definición de la pantalla de medidas del bebé
 <BabyMeasurementsScreen>:
+    # Disposición principal con orientación vertical
     BoxLayout:
         orientation: 'vertical'
         padding: [20, 20, 20, 20]
         spacing: 10
         canvas.before:
             Color:
-                rgba:  0.784, 0.902, 0.980, 1  # Blanco
+                rgba:  0.784, 0.902, 0.980, 1  # Color de fondo azul claro
             Rectangle:
                 pos: self.pos
                 size: self.size
 
+        # Etiqueta de título para medidas del bebé
         Label:
             text: 'Medidas del Bebé'
             font_size: '32sp'
             color: 0, 0, 0, 1
 
+        # Spinner para seleccionar o agregar un nuevo nombre
         Spinner:
             id: spinner_name
             text: 'Seleccionar o Nuevo'
             values: []
             on_text: root.on_spinner_select(self.text)
 
+        # Campo de entrada para el nuevo nombre del bebé
         TextInput:
             id: new_name
             hint_text: 'Nuevo nombre'
             multiline: False
             disabled: True
 
+        # Campo de entrada para la altura del bebé
         TextInput:
             id: height
             hint_text: 'Altura del bebé (cm)'
             multiline: False
 
+        # Campo de entrada para la circunferencia del pecho del bebé
         TextInput:
             id: chest_circumference
             hint_text: 'Circunferencia del pecho (cm)'
             multiline: False
 
+        # Campo de entrada para la circunferencia de la cintura del bebé
         TextInput:
             id: waist_circumference
             hint_text: 'Circunferencia de la cintura (cm)'
             multiline: False
 
+        # Campo de entrada para el largo del torso del bebé
         TextInput:
             id: torso_length
             hint_text: 'Largo del torso (cm)'
             multiline: False
 
+        # Campo de entrada para el largo de la pierna del bebé
         TextInput:
             id: leg_length
             hint_text: 'Largo de la pierna (cm)'
             multiline: False
 
+        # Botón para guardar las medidas del bebé
         Button:
             text: 'Guardar Medidas'
             on_press: root.save_measurements(spinner_name.text, new_name.text, height.text, chest_circumference.text, waist_circumference.text, torso_length.text, leg_length.text)
 
+        # Botón para volver a la pantalla de cuenta
         Button:
             text: 'Volver'
             on_press: root.manager.current = 'account'
+
 
 
 
